@@ -1,5 +1,6 @@
 // ============================================================
 // THE WATCH GALLERY — ROLEX CATALOG
+// Updated: Year-specific production ranges (startYear/endYear)
 // Pricing: Chrono24, WatchCharts, WatchGuys, Ermitage Apr 2026
 // Status: "current" | "discontinued" | "vintage" | "limited"
 // ============================================================
@@ -16,1167 +17,242 @@ const CM_GOLD = { Unworn:1.09, Mint:1.04, Excellent:1.00, "Very Good":.92, Good:
 const CM_RARE = { Unworn:1.25, Mint:1.12, Excellent:1.00, "Very Good":.87, Good:.73, Fair:.55 };
 const CM_VTG  = { Unworn:1.35, Mint:1.18, Excellent:1.00, "Very Good":.82, Good:.65, Fair:.45 };
 
-const EM_SUB     = { "Pre-1960":1.8, "1960s":1.5, "1970s":1.2, "1980s":.95, "1990s":.85, "2000s":.88, "2010s":.92, "2020s":1.0 };
-const EM_GMT     = { "Pre-1960":2.5, "1960s":2.0, "1970s":1.5, "1980s":1.2, "1990s":1.0,  "2000s":.92, "2010s":.90, "2020s":1.0 };
-const EM_DAY     = { "Pre-1960":2.0, "1960s":1.6, "1970s":1.3, "1980s":1.05,"1990s":.90, "2000s":.85, "2010s":.88, "2020s":1.0 };
-const EM_DAYTONA = { "Pre-1960":2.5, "1960s":2.0, "1970s":1.5, "1980s":1.2, "1990s":1.1,  "2000s":1.0, "2010s":.95, "2020s":1.0 };
-const EM_STD     = { "Pre-1960":1.5, "1960s":1.3, "1970s":1.1, "1980s":1.0, "1990s":.90, "2000s":.85, "2010s":.88, "2020s":1.0 };
+// Year-based multiplier curves — interpolated between defined anchor points
+const YM_SUB = {1953:2.8,1955:2.4,1960:1.9,1965:1.6,1970:1.3,1975:1.15,1980:1.0,1985:.96,1990:.90,1995:.87,2000:.88,2005:.90,2010:.93,2015:.95,2020:1.0,2026:1.0};
+const YM_GMT = {1955:3.2,1959:2.8,1965:2.2,1970:1.7,1975:1.4,1980:1.2,1985:1.05,1990:1.0,1995:.95,2000:.92,2005:.90,2010:.90,2015:.92,2020:1.0,2026:1.0};
+const YM_DAY = {1963:2.8,1965:2.2,1970:1.7,1975:1.35,1980:1.1,1985:1.0,1990:.92,1995:.88,2000:.86,2005:.87,2010:.89,2015:.92,2020:1.0,2026:1.0};
+const YM_DAYTONA = {1963:3.5,1965:2.8,1969:2.2,1975:1.8,1980:1.4,1985:1.2,1988:1.1,1995:1.05,2000:1.0,2005:.97,2010:.95,2015:.95,2020:1.0,2026:1.0};
+const YM_STD = {1950:2.0,1955:1.7,1960:1.5,1965:1.3,1970:1.15,1975:1.05,1980:1.0,1985:.97,1990:.93,1995:.90,2000:.87,2005:.86,2010:.88,2015:.91,2020:1.0,2026:1.0};
+const YM_PEPSI_2026 = {2018:1.0,2019:1.02,2020:1.05,2021:1.08,2022:1.10,2023:1.12,2024:1.18,2025:1.28,2026:1.40};
+const YM_DISC_HULL  = {2010:1.0,2015:.96,2019:.95,2020:.97,2021:1.15,2022:1.25,2023:1.20,2024:1.18,2025:1.15,2026:1.12};
+const YM_LAND = {2025:1.30,2026:1.25};
 
 const SRC_MAIN = ["Chrono24","WatchGuys","Ermitage 2026"];
 const SRC_C24  = ["Chrono24","WatchCharts"];
 const SRC_VTG  = ["Phillips","Christie's","Sotheby's"];
 
+const VN_GEN  = "Earlier production years command significant premiums due to rarity, dial patina, and collector demand. A 1950s example can trade at 2–4x the price of a 1980s example of the same reference. Dial originality, case sharpness, and provenance are critical value drivers.";
+const VN_SUB  = "Submariner vintage pricing varies dramatically by dial variant. Gilt dials, Maxi dials, and tropical (brown-patinated) dials command the highest premiums. Case sharpness and bracelet originality are equally important. Earlier years within any reference window are always more valuable.";
+const VN_DAY  = "Vintage Daytona values are driven primarily by dial type. Exotic 'Paul Newman' dials can be worth 10–20x a standard dial of the same reference. Within standard dials, earlier production years, original pushers, and matching bracelets add significant value.";
+
 window.ROLEX_WATCHES = [
 
-  // ── SUBMARINER NO DATE ──────────────────────────────────────────────────────
-  { id:"sub-nd-124060", fid:"rolex-subnd", family:"Submariner (No Date)",
-    name:"Submariner", nick:null, ref:"124060",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"The purist's Sub. No date, symmetrical dial, Caliber 3230, 70hr power reserve. The purest Submariner experience.",
-    pricing:P([10500,12000,14500],[9800,11200,13500],[8900,10400,12500],[8200,9600,11500]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-nd-114060", fid:"rolex-subnd", family:"Submariner (No Date)",
-    name:"Submariner", nick:"Pre-124060", ref:"114060",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2012–2020",
-    desc:"Previous 40mm no-date Sub. Caliber 3130. Discontinued 2020. Collectors prize the smaller case.",
-    pricing:P([9500,11000,13500],[8700,10100,12500],[8000,9300,11500],[7400,8700,10700]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-nd-5513", fid:"rolex-subnd", family:"Submariner (No Date)",
-    name:"Submariner", nick:"Maxi Dial", ref:"5513",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1962–1989",
-    desc:"Long-running no-date icon. Maxi dial and gilt dial variants are most prized. Tropical dials command enormous premiums.",
-    pricing:P([8000,14000,28000],[7000,12000,24000],[6000,10000,20000],[4500,8000,16000]),
-    cM:CM_VTG, eM:EM_SUB, src:SRC_VTG },
-
-  { id:"sub-nd-5512", fid:"rolex-subnd", family:"Submariner (No Date)",
-    name:"Submariner", nick:"Crown Guard", ref:"5512",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1959–1978",
-    desc:"Crown guards, non-quickset. One of the most desirable vintage Subs. Gilt and tropical dials reach six figures.",
-    pricing:P([18000,35000,80000],[15000,30000,70000],[12000,25000,60000],[10000,20000,50000]),
-    cM:CM_VTG, eM:EM_SUB, src:SRC_VTG },
-
-  { id:"sub-nd-6204", fid:"rolex-subnd", family:"Submariner (No Date)",
-    name:"Submariner", nick:"First Submariner", ref:"6204",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black", brace:"Oyster", size:"37mm",
-    status:"vintage", era:"1953–1955",
-    desc:"The very first Submariner reference. Museum-quality rarity. Six-figure territory for any presentable example.",
-    pricing:P([40000,90000,200000],[35000,80000,180000],[28000,65000,150000],[20000,50000,120000]),
-    cM:{ Unworn:1.5, Mint:1.25, Excellent:1.0, "Very Good":.80, Good:.60, Fair:.40 },
-    eM:{ "Pre-1960":1.5,"1960s":1.3,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── SUBMARINER DATE ─────────────────────────────────────────────────────────
-  { id:"sub-126610ln", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:null, ref:"126610LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"The quintessential dive watch. 41mm, Caliber 3235, 70hr power reserve. Trades 35–45% above retail.",
-    pricing:P([13000,14500,16500],[12000,13400,15200],[11200,12600,14200],[10500,11800,13500]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-126610lv", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Starbucks", ref:"126610LV",
-    mat:"Oystersteel", bezel:"Green Ceramic", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"'Starbucks' — green Cerachrom bezel on black dial. Commands meaningful premium over the standard black Sub.",
-    pricing:P([13500,15500,18500],[12500,14300,17000],[11500,13200,15800],[10800,12200,14800]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-126613ln", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:null, ref:"126613LN",
-    mat:"Rolesor Yellow Gold", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Two-tone Oystersteel and 18k yellow gold. Broad collector appeal and instantly recognizable.",
-    pricing:P([16000,18500,22000],[14800,17000,20000],[13500,15800,18500],[12500,14500,17000]),
-    cM:CM_GOLD, eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-126613lb", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Bluesy", ref:"126613LB",
-    mat:"Rolesor Yellow Gold", bezel:"Blue Ceramic", dial:"Blue", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"'Bluesy' — two-tone with matching blue bezel and dial. Commands strong premium over black two-tone.",
-    pricing:P([18000,21000,26000],[16500,19500,24000],[15000,18000,22000],[14000,16500,20000]),
-    cM:CM_GOLD, eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-126618ln", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Yellow Gold Black", ref:"126618LN",
-    mat:"18k Yellow Gold", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Full 18k yellow gold Submariner. The ultimate precious metal expression of the Sub.",
-    pricing:P([42000,50000,62000],[38000,46000,57000],[34000,42000,52000],[30000,38000,47000]),
-    cM:CM_GOLD, eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-126618lb", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Yellow Gold Blue", ref:"126618LB",
-    mat:"18k Yellow Gold", bezel:"Blue Ceramic", dial:"Blue", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Yellow gold with blue bezel and dial. Slightly rarer than black version, commands premium.",
-    pricing:P([44000,53000,65000],[40000,49000,60000],[36000,45000,55000],[33000,41000,51000]),
-    cM:CM_GOLD, eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-126619lb", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Smurf", ref:"126619LB",
-    mat:"18k White Gold", bezel:"Blue Ceramic", dial:"Blue", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"The 'Smurf' — all white-gold with electric blue. One of the most desirable Submariner configurations.",
-    pricing:P([46000,56000,70000],[42000,52000,65000],[38000,48000,60000],[35000,44000,55000]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-116610ln", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Pre-Ceramic 40mm", ref:"116610LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2010–2020",
-    desc:"Beloved 40mm pre-126610. Caliber 3135. Discontinued 2020. Collectors prize the smaller proportions.",
-    pricing:P([11500,13000,15500],[10500,11800,14000],[9500,10800,13000],[8800,10000,12000]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-116610lv", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Hulk", ref:"116610LV",
-    mat:"Oystersteel", bezel:"Green Ceramic", dial:"Green", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2010–2020",
-    desc:"The iconic 'Hulk' — full green dial AND bezel. Discontinued 2020, surged post-discontinuation.",
-    pricing:P([18000,22000,28000],[16500,20000,26000],[15000,18500,24000],[14000,17000,22000]),
-    cM:{ Unworn:1.18, Mint:1.09, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-16610lv", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Kermit", ref:"16610LV",
-    mat:"Oystersteel", bezel:"Green Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2003–2010",
-    desc:"50th Anniversary 'Kermit' — green aluminum bezel, black dial. First green Sub. Beloved neo-vintage.",
-    pricing:P([13000,16000,20000],[12000,14500,18500],[11000,13500,17000],[10000,12500,15500]),
-    cM:{ Unworn:1.16, Mint:1.08, Excellent:1.0, "Very Good":.90, Good:.78, Fair:.63 },
-    eM:EM_SUB, src:SRC_C24 },
-
-  { id:"sub-16610", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Classic Aluminum Era", ref:"16610",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"1989–2010",
-    desc:"The long-running 16610 — quintessential Submariner Date for two decades. Very strong market.",
-    pricing:P([9000,11000,14000],[8200,10000,12800],[7500,9200,11800],[6900,8500,10900]),
-    cM:CM_STD, eM:EM_SUB, src:SRC_MAIN },
-
-  { id:"sub-1680", fid:"rolex-sub", family:"Submariner Date",
-    name:"Submariner Date", nick:"Red Sub", ref:"1680",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black/Red Text", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1965–1979",
-    desc:"The legendary 'Red Sub' — SUBMARINER printed in red. Value varies dramatically by dial version and condition.",
-    pricing:P([18000,28000,55000],[16000,24000,48000],[14000,20000,40000],[10000,16000,30000]),
-    cM:{ Unworn:1.3, Mint:1.15, Excellent:1.0, "Very Good":.85, Good:.70, Fair:.50 },
-    eM:{ "Pre-1960":1.0,"1960s":1.2,"1970s":1.0,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── GMT-MASTER II ────────────────────────────────────────────────────────────
-  { id:"gmt-pepsi-jub", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Pepsi — Jubilee", ref:"126710BLRO",
-    mat:"Oystersteel", bezel:"Red/Blue Ceramic", dial:"Black", brace:"Jubilee", size:"40mm",
-    status:"discontinued", era:"2018–2026",
-    desc:"Discontinued April 14 2026 at Watches & Wonders. The iconic Pepsi on Jubilee. Prices surging rapidly.",
-    pricing:P([24000,31000,42000],[21000,27500,37000],[18500,24000,32000],[16000,21000,28000]),
-    cM:{ Unworn:1.35, Mint:1.18, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.60 },
-    eM:EM_GMT, src:["WatchGuys","Chrono24","LuxuryWatchesUSA"] },
-
-  { id:"gmt-pepsi-oys", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Pepsi — Oyster", ref:"126710BLRO",
-    mat:"Oystersteel", bezel:"Red/Blue Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2021–2026",
-    desc:"Pepsi on Oyster bracelet. Also discontinued April 2026. Slightly below Jubilee in market value.",
-    pricing:P([22000,28000,38000],[20000,25500,34000],[18000,23000,31000],[16000,21000,28000]),
-    cM:{ Unworn:1.30, Mint:1.15, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.60 },
-    eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-batman-jub", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Batman — Jubilee", ref:"126710BLNR",
-    mat:"Oystersteel", bezel:"Blue/Black Ceramic", dial:"Black", brace:"Jubilee", size:"40mm",
-    status:"current", era:"2019–Present",
-    desc:"The 'Batman' on Jubilee. More accessible than Pepsi, equally wearable. Consistently strong demand.",
-    pricing:P([13200,15800,19000],[12000,14400,17200],[11000,13200,16000],[10000,12000,14500]),
-    cM:CM_STD, eM:EM_GMT, src:SRC_MAIN },
-
-  { id:"gmt-batgirl-oys", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Batgirl — Oyster", ref:"126710BLNR",
-    mat:"Oystersteel", bezel:"Blue/Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"current", era:"2019–Present",
-    desc:"'Batgirl' — Batman configuration on Oyster bracelet. Sportier look.",
-    pricing:P([12500,15000,18000],[11500,13700,16500],[10500,12500,15200],[9800,11500,14000]),
-    cM:CM_STD, eM:EM_GMT, src:SRC_MAIN },
-
-  { id:"gmt-brucewaynej", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Bruce Wayne — Jubilee", ref:"126710BKSO",
-    mat:"Oystersteel", bezel:"Black/Oystersteel", dial:"Black", brace:"Jubilee", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"'Bruce Wayne' — stealthy black and steel bezel. Understated and increasingly desirable.",
-    pricing:P([14000,17000,21000],[13000,15500,19000],[12000,14200,17500],[11000,13000,16000]),
-    cM:CM_STD, eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-sprite-oys", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Sprite — Oyster", ref:"126720VTNR",
-    mat:"Oystersteel", bezel:"Green/Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"'Sprite' — left-hand crown. Green/black bezel. Very popular with collectors.",
-    pricing:P([18000,23000,30000],[16500,21000,27500],[15000,19000,25000],[14000,17500,23000]),
-    cM:{ Unworn:1.18, Mint:1.09, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-sprite-jub", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Sprite — Jubilee", ref:"126720VTNR",
-    mat:"Oystersteel", bezel:"Green/Black Ceramic", dial:"Black", brace:"Jubilee", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"Sprite on Jubilee — the more refined, dressy Sprite configuration.",
-    pricing:P([19000,24500,32000],[17500,22500,29500],[16000,20500,27000],[15000,19000,25000]),
-    cM:{ Unworn:1.18, Mint:1.09, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-rb-oys", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Root Beer — Oyster", ref:"126711CHNR",
-    mat:"Rolesor Everose Gold", bezel:"Brown/Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"current", era:"2018–Present",
-    desc:"Two-tone 'Root Beer' — Everose and steel, brown/black bezel. Warm and distinctive.",
-    pricing:P([24000,29000,36000],[22000,27000,33000],[20000,25000,30500],[18500,23000,28000]),
-    cM:CM_GOLD, eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-rb-jub", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Root Beer — Jubilee", ref:"126711CHNR",
-    mat:"Rolesor Everose Gold", bezel:"Brown/Black Ceramic", dial:"Black", brace:"Jubilee", size:"40mm",
-    status:"current", era:"2018–Present",
-    desc:"Root Beer on Jubilee — the more elegant presentation of the two-tone GMT.",
-    pricing:P([25000,30500,38000],[23000,28000,35000],[21000,26000,32000],[19500,24000,29500]),
-    cM:CM_GOLD, eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-fullrb", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Full Root Beer", ref:"126715CHNR",
-    mat:"18k Everose Gold", bezel:"Brown/Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"current", era:"2018–Present",
-    desc:"Full Everose gold Root Beer — the ultimate GMT. Rare, expensive, and exceptionally distinctive.",
-    pricing:P([55000,68000,85000],[50000,62000,78000],[45000,57000,72000],[41000,52000,66000]),
-    cM:CM_GOLD, eM:EM_GMT, src:SRC_C24 },
-
-  { id:"gmt-pepsiwg", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Pepsi White Gold", ref:"126719BLRO",
-    mat:"18k White Gold", bezel:"Red/Blue Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2018–2026",
-    desc:"White gold Pepsi — discontinued April 2026 alongside steel. Rarer, commands significant premium.",
-    pricing:P([38000,48000,62000],[35000,44000,57000],[32000,40000,52000],[29000,37000,48000]),
-    cM:{ Unworn:1.15, Mint:1.07, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_GMT, src:SRC_MAIN },
-
-  { id:"gmt-pepsiwg-met", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Pepsi WG Meteorite", ref:"126719BLRO",
-    mat:"18k White Gold", bezel:"Red/Blue Ceramic", dial:"Meteorite", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2019–2026",
-    desc:"White gold Pepsi with meteorite dial — among the rarest GMT configurations ever made.",
-    pricing:P([55000,75000,100000],[50000,68000,92000],[45000,62000,85000],[40000,57000,78000]),
-    cM:CM_RARE, eM:EM_GMT, src:["Chrono24","Phillips"] },
-
-  { id:"gmt-1675", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master", nick:"Original Pepsi", ref:"1675",
-    mat:"Oystersteel", bezel:"Red/Blue Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1959–1980",
-    desc:"The original long-running Pepsi GMT. Gilt dials and Underline variants most coveted.",
-    pricing:P([15000,25000,55000],[13000,22000,48000],[11000,18000,40000],[8000,14000,32000]),
-    cM:CM_VTG, eM:EM_GMT, src:SRC_VTG },
-
-  { id:"gmt-6542", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master", nick:"Bakelite Pepsi", ref:"6542",
-    mat:"Oystersteel", bezel:"Red/Blue Bakelite", dial:"Black", brace:"Oyster", size:"37mm",
-    status:"vintage", era:"1955–1959",
-    desc:"The very first GMT-Master, created for Pan Am pilots. Bakelite bezel extremely rare intact. Museum-quality.",
-    pricing:P([50000,100000,250000],[0,0,0],[0,0,0],[30000,70000,180000]),
-    cM:{ Unworn:1.5, Mint:1.3, Excellent:1.0, "Very Good":.78, Good:.58, Fair:.40 },
-    eM:{ "Pre-1960":1.8,"1960s":1.3,"1970s":1.0,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  { id:"gmt-116710blnr", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"OG Batman", ref:"116710BLNR",
-    mat:"Oystersteel", bezel:"Blue/Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2013–2019",
-    desc:"The original ceramic Batman on Oyster. Introduced the blue/black colorway that defined a generation.",
-    pricing:P([12000,14500,18000],[11000,13200,16500],[10000,12000,15000],[9000,11000,14000]),
-    cM:CM_STD, eM:EM_GMT, src:SRC_MAIN },
-
-  { id:"gmt-16710-coke", fid:"rolex-gmt", family:"GMT-Master II",
-    name:"GMT-Master II", nick:"Coke", ref:"16710",
-    mat:"Oystersteel", bezel:"Red/Black Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"1989–2007",
-    desc:"'Coke' bezel — red and black aluminum. Last of the aluminum-bezel GMTs. Three bezel configs exist.",
-    pricing:P([10000,13500,18000],[9000,12000,16000],[8000,10800,14500],[7000,9500,13000]),
-    cM:{ Unworn:1.16, Mint:1.08, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_GMT, src:SRC_C24 },
-
-  // ── DAYTONA ─────────────────────────────────────────────────────────────────
-  { id:"day-116500-blk", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Reverse Panda", ref:"116500LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2016–2023",
-    desc:"Black dial 116500LN — discontinued 2023. Caliber 4130. The original ceramic Daytona.",
-    pricing:P([26000,30000,36000],[24000,28000,33000],[22000,25500,30000],[20000,23500,28000]),
-    cM:{ Unworn:1.18, Mint:1.09, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_DAYTONA, src:SRC_MAIN },
-
-  { id:"day-116500-wht", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Panda", ref:"116500LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"White", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2016–2023",
-    desc:"White Panda 116500LN — the most coveted Daytona configuration. Commands premium over black.",
-    pricing:P([28000,33000,40000],[26000,30500,37000],[24000,28000,34000],[22000,26000,32000]),
-    cM:{ Unworn:1.20, Mint:1.10, Excellent:1.0, "Very Good":.89, Good:.76, Fair:.61 },
-    eM:EM_DAYTONA, src:SRC_MAIN },
-
-  { id:"day-126500-blk", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Reverse Panda 60th", ref:"126500LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"Current-gen black Daytona. Caliber 4131, 72hr power reserve. Retail waitlists exceed 8 years.",
-    pricing:P([28000,34000,42000],[26000,31500,39000],[24000,29000,36000],[22000,27000,33500]),
-    cM:{ Unworn:1.18, Mint:1.09, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_DAYTONA, src:SRC_C24 },
-
-  { id:"day-126500-wht", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Panda 60th", ref:"126500LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"White", brace:"Oyster", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"Current white Panda — most in-demand watch on earth. Retail waitlists exceed 8 years.",
-    pricing:P([32000,39000,48000],[29500,36000,44500],[27000,33000,41000],[25000,30500,38000]),
-    cM:{ Unworn:1.22, Mint:1.11, Excellent:1.0, "Very Good":.89, Good:.76, Fair:.61 },
-    eM:EM_DAYTONA, src:SRC_MAIN },
-
-  { id:"day-lemans", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Le Mans", ref:"126528LN",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"limited", era:"2023",
-    desc:"Le Mans 24h limited edition — first-ever Daytona with exhibition caseback. Extremely limited.",
-    pricing:P([55000,80000,120000],[50000,73000,110000],[45000,66000,100000],[40000,60000,90000]),
-    cM:CM_RARE, eM:EM_DAYTONA, src:["Chrono24","Phillips"] },
-
-  { id:"day-116508", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"John Mayer Green", ref:"116508",
-    mat:"18k Yellow Gold", bezel:"Green Ceramic", dial:"Green", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2016–2023",
-    desc:"John Mayer's famous Hodinkee recommendation sent this into the stratosphere. Discontinued and surging.",
-    pricing:P([58000,75000,100000],[52000,68000,92000],[47000,62000,84000],[43000,57000,77000]),
-    cM:CM_GOLD, eM:EM_DAYTONA, src:SRC_C24 },
-
-  { id:"day-126508", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Yellow Gold Green", ref:"126508",
-    mat:"18k Yellow Gold", bezel:"Green Ceramic", dial:"Green", brace:"Oyster", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"Current-gen yellow gold green Daytona. Continuing the legend of the 116508.",
-    pricing:P([62000,80000,105000],[57000,74000,97000],[52000,68000,90000],[47000,62000,83000]),
-    cM:CM_GOLD, eM:EM_DAYTONA, src:SRC_C24 },
-
-  { id:"day-126518ln", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Everose Black", ref:"126518LN",
-    mat:"18k Everose Gold", bezel:"Black Ceramic", dial:"Black", brace:"Oysterflex", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"Current Everose Daytona on Oysterflex. Sporty and distinctive.",
-    pricing:P([40000,50000,64000],[37000,46000,59000],[34000,42000,54000],[31000,38500,50000]),
-    cM:CM_GOLD, eM:EM_DAYTONA, src:SRC_C24 },
-
-  { id:"day-126519ln", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"White Gold Black", ref:"126519LN",
-    mat:"18k White Gold", bezel:"Black Ceramic", dial:"Black", brace:"Oysterflex", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"White gold Daytona in stealth. Increasingly desirable among sophisticated collectors.",
-    pricing:P([42000,53000,68000],[38000,48000,62000],[35000,44000,57000],[32000,40000,52000]),
-    cM:CM_GOLD, eM:EM_DAYTONA, src:SRC_C24 },
-
-  { id:"day-126506", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Platinum Ice Blue", ref:"126506",
-    mat:"Platinum", bezel:"Chestnut Ceramic", dial:"Ice Blue", brace:"Oyster", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"The apex Daytona — platinum with ice blue dial exclusive to platinum. Exceptionally rare.",
-    pricing:P([90000,120000,160000],[82000,110000,148000],[75000,100000,136000],[68000,92000,125000]),
-    cM:CM_GOLD, eM:EM_DAYTONA, src:["Chrono24","Phillips","WatchCharts"] },
-
-  { id:"day-6239", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Paul Newman", ref:"6239",
-    mat:"Oystersteel", bezel:"Steel Tachymeter", dial:"Exotic", brace:"Oyster", size:"36mm",
-    status:"vintage", era:"1963–1969",
-    desc:"Paul Newman's personal ref sold for $17.8M at Phillips. Exotic dial versions are the most valuable Rolexes ever sold.",
-    pricing:P([30000,80000,500000],[0,0,0],[0,0,0],[18000,50000,350000]),
-    cM:{ Unworn:1.5, Mint:1.25, Excellent:1.0, "Very Good":.80, Good:.62, Fair:.42 },
-    eM:{ "Pre-1960":1.0,"1960s":1.5,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  { id:"day-16520", fid:"rolex-daytona", family:"Daytona",
-    name:"Cosmograph Daytona", nick:"Zenith Daytona", ref:"16520",
-    mat:"Oystersteel", bezel:"Steel Tachymeter", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1988–2000",
-    desc:"El Primero-powered automatic Daytona. The bridge between manual-wind and in-house eras. Highly collectible.",
-    pricing:P([18000,28000,50000],[16000,25000,44000],[14000,22000,38000],[11000,18000,32000]),
-    cM:{ Unworn:1.22, Mint:1.11, Excellent:1.0, "Very Good":.86, Good:.70, Fair:.52 },
-    eM:EM_STD, src:["Chrono24","Phillips","WatchCharts"] },
-
-  // ── DAY-DATE 36 ──────────────────────────────────────────────────────────────
-  { id:"dd36-128238-champ", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:null, ref:"128238",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"The classic President. Yellow gold, fluted bezel, champagne dial. The definitive Day-Date.",
-    pricing:P([32000,40000,52000],[29000,37000,48000],[26000,34000,44000],[23000,30000,40000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128238-olive", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:null, ref:"128238",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Olive Green", brace:"President", size:"36mm",
-    status:"current", era:"2023–Present",
-    desc:"Yellow gold with olive green dial — a fresh modern option.",
-    pricing:P([34000,42000,55000],[31000,39000,51000],[28000,36000,47000],[25000,33000,43000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128238-black", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:null, ref:"128238",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Black", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"Black dial Day-Date 36 in yellow gold.",
-    pricing:P([33000,41000,53000],[30000,38000,49000],[27000,35000,45000],[24000,32000,41000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128238-met", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:"Meteorite Dial", ref:"128238",
-    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Meteorite", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"Meteorite dial — each dial is unique, cut from actual meteorite. Extraordinarily rare material.",
-    pricing:P([45000,58000,75000],[41000,53000,69000],[38000,49000,64000],[35000,45000,59000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128239-silver", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:null, ref:"128239",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"White gold Day-Date 36 — cool-toned, refined luxury.",
-    pricing:P([33000,41000,53000],[30000,38000,49000],[27000,35000,45000],[24000,32000,41000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128235-choc", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:null, ref:"128235",
-    mat:"18k Everose Gold", bezel:"Fluted", dial:"Chocolate", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"Everose gold with chocolate dial — warm, rich, and distinctive.",
-    pricing:P([34000,43000,56000],[31000,40000,52000],[28000,37000,48000],[25000,34000,44000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128206-iceblue", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:"Platinum", ref:"128206",
-    mat:"Platinum", bezel:"Fluted", dial:"Ice Blue", brace:"President", size:"36mm",
-    status:"current", era:"2019–Present",
-    desc:"Platinum President — the apex DD36. Ice blue is exclusive to platinum models.",
-    pricing:P([52000,68000,88000],[48000,63000,82000],[44000,58000,76000],[40000,54000,70000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128206-met", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:"Platinum Meteorite", ref:"128206",
-    mat:"Platinum", bezel:"Fluted", dial:"Meteorite", brace:"President", size:"36mm",
-    status:"current", era:"2022–Present",
-    desc:"Platinum DD36 with meteorite dial — the most exclusive dial material in the President family.",
-    pricing:P([65000,85000,110000],[60000,78000,102000],[55000,72000,95000],[50000,66000,88000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-128345rbr", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date 36", nick:"Diamond Baguette", ref:"128345RBR",
-    mat:"18k Yellow Gold", bezel:"Baguette Diamond", dial:"Chocolate", brace:"President", size:"36mm",
-    status:"current", era:"2022–Present",
-    desc:"Factory diamond baguette bezel — the most glamorous Day-Date 36 configuration.",
-    pricing:P([65000,85000,115000],[60000,78000,105000],[55000,72000,97000],[50000,66000,90000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd36-1803", fid:"rolex-dd36", family:"Day-Date 36",
-    name:"Day-Date", nick:"Original President", ref:"1803",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"President", size:"36mm",
-    status:"vintage", era:"1959–1977",
-    desc:"The original Day-Date that established the President legend. Worn by every US president since Eisenhower.",
-    pricing:P([12000,20000,40000],[10000,17000,35000],[8500,14000,30000],[7000,11000,24000]),
-    cM:{ Unworn:1.3, Mint:1.15, Excellent:1.0, "Very Good":.83, Good:.67, Fair:.48 },
-    eM:{ "Pre-1960":1.2,"1960s":1.4,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── DAY-DATE 40 ──────────────────────────────────────────────────────────────
-  { id:"dd40-228238-champ", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:null, ref:"228238",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"President", size:"40mm",
-    status:"current", era:"2015–Present",
-    desc:"The modern 40mm President. Caliber 3255, 70hr power reserve.",
-    pricing:P([40000,48000,60000],[36000,44000,55000],[32000,40000,50000],[29000,36000,45000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd40-228238-olive", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:null, ref:"228238",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Olive Green", brace:"President", size:"40mm",
-    status:"current", era:"2023–Present",
-    desc:"Olive green DD40 — one of the freshest and most sought-after current dial options.",
-    pricing:P([43000,52000,65000],[39000,48000,60000],[35000,44000,55000],[32000,40000,50000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd40-228235-choc", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:null, ref:"228235",
-    mat:"18k Everose Gold", bezel:"Fluted", dial:"Chocolate", brace:"President", size:"40mm",
-    status:"current", era:"2015–Present",
-    desc:"Everose with chocolate — the warmest, most distinctive DD40 palette.",
-    pricing:P([42000,51000,63000],[38000,47000,58000],[35000,43000,53000],[32000,39000,49000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd40-228239-silver", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:null, ref:"228239",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"President", size:"40mm",
-    status:"current", era:"2015–Present",
-    desc:"White gold DD40. Refined and cool-toned presidential statement.",
-    pricing:P([41000,50000,62000],[37000,46000,57000],[34000,42000,52000],[31000,38000,48000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd40-228206-iceblue", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:"Platinum", ref:"228206",
-    mat:"Platinum", bezel:"Fluted", dial:"Ice Blue", brace:"President", size:"40mm",
-    status:"current", era:"2015–Present",
-    desc:"Platinum President 40mm — the absolute apex Day-Date. Ice blue exclusive to platinum.",
-    pricing:P([60000,78000,100000],[55000,72000,93000],[50000,66000,86000],[46000,61000,80000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  { id:"dd40-228396tbr", fid:"rolex-dd40", family:"Day-Date 40",
-    name:"Day-Date 40", nick:"Diamond Baguette", ref:"228396TBR",
-    mat:"18k Yellow Gold", bezel:"Baguette Diamond", dial:"Olive", brace:"President", size:"40mm",
-    status:"limited", era:"2022–Present",
-    desc:"Factory diamond baguette bezel — the most opulent DD40 configuration.",
-    pricing:P([90000,120000,160000],[82000,110000,148000],[75000,100000,136000],[68000,92000,125000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_C24 },
-
-  // ── DATEJUST 36 ──────────────────────────────────────────────────────────────
-  { id:"dj36-126200-blk", fid:"rolex-dj36", family:"Datejust 36",
-    name:"Datejust 36", nick:null, ref:"126200",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"Clean steel DJ36. Smooth bezel, black dial. Versatile entry-level Rolex.",
-    pricing:P([6800,8000,10000],[6200,7400,9200],[5700,6800,8500],[5200,6300,7800]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj36-126200-blu", fid:"rolex-dj36", family:"Datejust 36",
-    name:"Datejust 36", nick:null, ref:"126200",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Blue", brace:"Oyster", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"Blue dial smooth bezel — most popular DJ36 configuration.",
-    pricing:P([7000,8200,10200],[6400,7600,9400],[5900,7000,8700],[5400,6500,8000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj36-126200-silv", fid:"rolex-dj36", family:"Datejust 36",
-    name:"Datejust 36", nick:null, ref:"126200",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Silver", brace:"Oyster", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"Silver dial smooth bezel DJ36.",
-    pricing:P([6900,8100,10100],[6300,7500,9300],[5800,6900,8600],[5300,6400,8000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj36-126233-silv", fid:"rolex-dj36", family:"Datejust 36",
-    name:"Datejust 36", nick:null, ref:"126233",
-    mat:"Rolesor Yellow Gold", bezel:"Fluted", dial:"Silver", brace:"Jubilee", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"Two-tone Rolesor with fluted bezel on Jubilee. The classic elegant combination.",
-    pricing:P([9500,11500,14500],[8700,10600,13300],[8000,9700,12200],[7300,8900,11200]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj36-126234-blu", fid:"rolex-dj36", family:"Datejust 36",
-    name:"Datejust 36", nick:null, ref:"126234",
-    mat:"Oystersteel/White Gold", bezel:"Fluted", dial:"Blue", brace:"Jubilee", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"Steel with white gold fluted bezel — blue Jubilee. Clean and prestigious.",
-    pricing:P([9000,10800,13500],[8200,10000,12500],[7500,9200,11500],[6900,8500,10700]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  // ── DATEJUST 41 ──────────────────────────────────────────────────────────────
-  { id:"dj41-126300-blk", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Clean steel DJ41. Black dial smooth bezel on Oyster. The workhorse Rolex.",
-    pricing:P([7500,9000,11200],[6900,8300,10300],[6300,7600,9500],[5800,7000,8800]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126300-blu", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Blue", brace:"Oyster", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Blue dial smooth bezel — most popular DJ41 configuration.",
-    pricing:P([7800,9400,11700],[7100,8600,10700],[6500,7900,9900],[6000,7300,9200]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126300-silv", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Silver", brace:"Oyster", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Silver dial DJ41 on Oyster.",
-    pricing:P([7600,9200,11500],[7000,8500,10600],[6400,7800,9800],[5900,7200,9100]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126334-blu", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126334",
-    mat:"Oystersteel/White Gold", bezel:"Fluted", dial:"Blue", brace:"Jubilee", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Fluted WG bezel, blue dial on Jubilee — the definitive dressy DJ41.",
-    pricing:P([9200,10800,13000],[8400,9900,11900],[7600,9100,10900],[6900,8200,10000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126334-blk", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126334",
-    mat:"Oystersteel/White Gold", bezel:"Fluted", dial:"Black", brace:"Jubilee", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Black dial fluted DJ41. Classic and versatile.",
-    pricing:P([8800,10500,12700],[8100,9700,11700],[7400,8900,10800],[6800,8200,10000]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126333-champ", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126333",
-    mat:"Rolesor Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"Jubilee", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Two-tone YG/steel DJ41 on Jubilee. The complete elegant package.",
-    pricing:P([11000,13500,17000],[10000,12500,15700],[9100,11400,14500],[8400,10400,13400]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-126331-blk", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:null, ref:"126331",
-    mat:"Rolesor Yellow Gold", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2016–Present",
-    desc:"Two-tone YG/steel DJ41 on Oyster with smooth bezel. Sportier than the Jubilee version.",
-    pricing:P([10500,13000,16500],[9600,12000,15300],[8800,11000,14200],[8100,10200,13200]),
-    cM:CM_GOLD, eM:EM_DAY, src:SRC_MAIN },
-
-  { id:"dj41-palm", fid:"rolex-dj41", family:"Datejust 41",
-    name:"Datejust 41", nick:"Palm Boutique", ref:"126300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Palm Green", brace:"Oyster", size:"41mm",
-    status:"limited", era:"2023",
-    desc:"Boutique-exclusive palm motif dial. Extraordinarily rare, commands massive premium.",
-    pricing:P([25000,38000,60000],[22000,34000,55000],[19000,30000,50000],[17000,27000,46000]),
-    cM:CM_RARE, eM:EM_DAY, src:["Chrono24","Phillips"] },
-
-  // ── SKY-DWELLER ──────────────────────────────────────────────────────────────
-  { id:"sky-336934-blk", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"336934",
-    mat:"Oystersteel", bezel:"Fluted", dial:"Black", brace:"Oyster", size:"42mm",
-    status:"current", era:"2023–Present",
-    desc:"First steel Sky-Dweller on Oyster. Annual calendar + dual time zone. Caliber 9002.",
-    pricing:P([18000,22000,28000],[16500,20000,25500],[15000,18500,23500],[14000,17000,21500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-336934-blu", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"336934",
-    mat:"Oystersteel", bezel:"Fluted", dial:"Blue", brace:"Oyster", size:"42mm",
-    status:"current", era:"2023–Present",
-    desc:"Blue dial steel Sky-Dweller — most popular steel configuration.",
-    pricing:P([19000,23500,30000],[17500,21500,27500],[16000,19800,25500],[15000,18200,23500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-336934-silv", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"336934",
-    mat:"Oystersteel", bezel:"Fluted", dial:"Silver", brace:"Oyster", size:"42mm",
-    status:"current", era:"2023–Present",
-    desc:"Silver dial steel Sky-Dweller.",
-    pricing:P([18500,22500,28500],[17000,20500,26000],[15500,18800,24000],[14500,17300,22000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-326938-champ", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"326938",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"Oyster", size:"42mm",
-    status:"current", era:"2012–Present",
-    desc:"Yellow gold Sky-Dweller — Rolex's most sophisticated complication in gold.",
-    pricing:P([52000,63000,78000],[47000,57000,70000],[43000,52000,64000],[38000,47000,58000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-326935-choc", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"326935",
-    mat:"18k Everose Gold", bezel:"Fluted", dial:"Chocolate", brace:"Oyster", size:"42mm",
-    status:"current", era:"2012–Present",
-    desc:"Everose gold with chocolate dial — warm and distinctive.",
-    pricing:P([54000,65000,81000],[49000,60000,75000],[45000,55000,69000],[41000,50000,63000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-326939-white", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:null, ref:"326939",
-    mat:"18k White Gold", bezel:"Fluted", dial:"White", brace:"Oyster", size:"42mm",
-    status:"current", era:"2012–Present",
-    desc:"White gold Sky-Dweller with white dial — the most formal, elegant configuration.",
-    pricing:P([55000,67000,83000],[50000,62000,77000],[46000,57000,71000],[42000,52000,65000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sky-palm", fid:"rolex-sky", family:"Sky-Dweller",
-    name:"Sky-Dweller", nick:"Palm Boutique", ref:"336934",
-    mat:"Oystersteel", bezel:"Fluted", dial:"Palm Green", brace:"Oyster", size:"42mm",
-    status:"limited", era:"2023",
-    desc:"Boutique-exclusive Palm dial — among the rarest current Rolex configurations.",
-    pricing:P([45000,70000,110000],[40000,63000,100000],[36000,57000,92000],[33000,52000,85000]),
-    cM:CM_RARE, eM:EM_STD, src:["Chrono24","Phillips"] },
-
-  // ── EXPLORER I ───────────────────────────────────────────────────────────────
-  { id:"exp1-124270", fid:"rolex-exp1", family:"Explorer I",
-    name:"Explorer", nick:null, ref:"124270",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"36mm",
-    status:"current", era:"2021–Present",
-    desc:"36mm reintroduction. Beloved by purists for smaller, tool-watch proportions. Caliber 3230.",
-    pricing:P([7800,9500,12000],[7100,8700,11000],[6500,8000,10200],[6000,7400,9500]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"exp1-224270", fid:"rolex-exp1", family:"Explorer I",
-    name:"Explorer", nick:null, ref:"224270",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"42mm",
-    status:"current", era:"2021–Present",
-    desc:"42mm Explorer — the larger modern option, new for 2021 alongside the 36mm.",
-    pricing:P([8000,9800,12500],[7300,9000,11500],[6700,8300,10700],[6200,7700,9900]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"exp1-1016", fid:"rolex-exp1", family:"Explorer I",
-    name:"Explorer", nick:"Classic 1016", ref:"1016",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"36mm",
-    status:"vintage", era:"1963–1989",
-    desc:"The legendary 1016 — produced 26 years unchanged. Matte and tropical dial variants most coveted.",
-    pricing:P([10000,18000,45000],[8500,15000,38000],[7000,12500,32000],[5500,10000,26000]),
-    cM:CM_VTG,
-    eM:{ "Pre-1960":1.0,"1960s":1.5,"1970s":1.2,"1980s":1.1,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── EXPLORER II ──────────────────────────────────────────────────────────────
-  { id:"exp2-226570-blk", fid:"rolex-exp2", family:"Explorer II",
-    name:"Explorer II", nick:null, ref:"226570",
-    mat:"Oystersteel", bezel:"24hr Fixed", dial:"Black", brace:"Oyster", size:"42mm",
-    status:"current", era:"2021–Present",
-    desc:"Black dial Explorer II. Orange 24-hour hand. Classic cave explorer's tool watch. Caliber 3285.",
-    pricing:P([9000,11000,14000],[8200,10100,12900],[7500,9300,11900],[6900,8600,11000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"exp2-226570-wht", fid:"rolex-exp2", family:"Explorer II",
-    name:"Explorer II", nick:"Polar", ref:"226570",
-    mat:"Oystersteel", bezel:"24hr Fixed", dial:"White", brace:"Oyster", size:"42mm",
-    status:"current", era:"2021–Present",
-    desc:"'Polar' white dial — the clean, bright variant. Very striking and particularly popular.",
-    pricing:P([9500,11500,14800],[8700,10600,13600],[8000,9800,12600],[7400,9000,11700]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"exp2-1655", fid:"rolex-exp2", family:"Explorer II",
-    name:"Explorer II", nick:"Steve McQueen / Freccione", ref:"1655",
-    mat:"Oystersteel", bezel:"Orange 24hr Fixed", dial:"White", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1971–1985",
-    desc:"The original Explorer II, associated with Steve McQueen. Fixed 'Freccione' orange hand. Iconic vintage piece.",
-    pricing:P([20000,40000,90000],[17000,34000,78000],[14000,28000,66000],[10000,22000,52000]),
-    cM:CM_VTG,
-    eM:{ "Pre-1960":1.0,"1960s":1.0,"1970s":1.4,"1980s":1.1,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── YACHT-MASTER I ───────────────────────────────────────────────────────────
-  { id:"ym1-126622-blu", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:null, ref:"126622",
-    mat:"Oystersteel", bezel:"Platinum", dial:"Blue", brace:"Oyster", size:"40mm",
-    status:"current", era:"2019–Present",
-    desc:"Steel case with platinum bezel. The classic steel YM. Blue dial is the benchmark.",
-    pricing:P([13000,16000,20000],[12000,14700,18500],[11000,13500,17000],[10200,12500,15800]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ym1-126622-rhodium", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:"Dark Rhodium", ref:"126622",
-    mat:"Oystersteel", bezel:"Platinum", dial:"Dark Rhodium", brace:"Oyster", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"Dark rhodium dial — contemporary and sophisticated. Harder to find than blue.",
-    pricing:P([14000,17500,22000],[13000,16000,20000],[12000,14800,18500],[11000,13600,17000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ym1-126622-silv", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:null, ref:"126622",
-    mat:"Oystersteel", bezel:"Platinum", dial:"Silver", brace:"Oyster", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"Silver dial steel Yacht-Master.",
-    pricing:P([13200,16300,20500],[12200,15000,18900],[11200,13800,17400],[10400,12800,16100]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ym1-126621-choc", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:null, ref:"126621",
-    mat:"Rolesor Everose Gold", bezel:"Everose Gold", dial:"Chocolate", brace:"Oyster", size:"40mm",
-    status:"current", era:"2019–Present",
-    desc:"Everose two-tone YM. Warm palette, sporty-luxe combination.",
-    pricing:P([20000,25000,32000],[18500,23000,29500],[17000,21000,27000],[15500,19500,25000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ym1-126655-blk", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:null, ref:"126655",
-    mat:"18k Everose Gold", bezel:"Everose Gold", dial:"Black", brace:"Oysterflex", size:"40mm",
-    status:"current", era:"2019–Present",
-    desc:"Full Everose gold YM on Oysterflex rubber. The sportiest luxury YM.",
-    pricing:P([38000,47000,60000],[35000,43000,55000],[32000,39500,50000],[29000,36000,46000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"ym1-226659-blk", fid:"rolex-ym1", family:"Yacht-Master I",
-    name:"Yacht-Master", nick:null, ref:"226659",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Black", brace:"Oysterflex", size:"42mm",
-    status:"current", era:"2019–Present",
-    desc:"White gold YM 42mm on Oysterflex. Bold, sporty, luxurious.",
-    pricing:P([45000,56000,72000],[41000,51000,66000],[37000,47000,61000],[34000,43000,56000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  // ── YACHT-MASTER II ──────────────────────────────────────────────────────────
-  { id:"ym2-226680-blu", fid:"rolex-ym2", family:"Yacht-Master II",
-    name:"Yacht-Master II", nick:null, ref:"226680",
-    mat:"Oystersteel", bezel:"Rubber Regatta", dial:"Blue", brace:"Oyster", size:"44mm",
-    status:"current", era:"2022–Present",
-    desc:"Steel YMII with programmable regatta timer. Bold 44mm serious sailing watch.",
-    pricing:P([16000,19500,25000],[14800,18000,23000],[13500,16500,21000],[12500,15200,19500]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ym2-116681", fid:"rolex-ym2", family:"Yacht-Master II",
-    name:"Yacht-Master II", nick:"Rolesor Everose", ref:"116681",
-    mat:"Rolesor Everose Gold", bezel:"Everose Regatta", dial:"Black", brace:"Oyster", size:"44mm",
-    status:"discontinued", era:"2007–2022",
-    desc:"Two-tone YMII — discontinued. Everose/steel combo with strong collector interest.",
-    pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,28000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"ym2-116688", fid:"rolex-ym2", family:"Yacht-Master II",
-    name:"Yacht-Master II", nick:"Yellow Gold", ref:"116688",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold Regatta", dial:"Champagne", brace:"Oyster", size:"44mm",
-    status:"discontinued", era:"2007–2022",
-    desc:"Full yellow gold YMII — discontinued. The ultimate expression of the regatta complication.",
-    pricing:P([55000,70000,90000],[50000,64000,83000],[46000,59000,77000],[42000,54000,71000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"ym2-116689", fid:"rolex-ym2", family:"Yacht-Master II",
-    name:"Yacht-Master II", nick:"White Gold", ref:"116689",
-    mat:"18k White Gold", bezel:"White Gold Regatta", dial:"White", brace:"Oyster", size:"44mm",
-    status:"discontinued", era:"2007–2022",
-    desc:"Full white gold YMII — discontinued. Rare and elegant.",
-    pricing:P([58000,74000,95000],[53000,68000,88000],[49000,63000,81000],[45000,58000,75000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  // ── SEA-DWELLER ──────────────────────────────────────────────────────────────
-  { id:"sd-126600", fid:"rolex-sd", family:"Sea-Dweller",
-    name:"Sea-Dweller", nick:"50th Anniversary", ref:"126600",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"43mm",
-    status:"current", era:"2017–Present",
-    desc:"50th Anniversary Sea-Dweller. 43mm, helium escape valve, 1220m water resistance. First SD with Cyclops.",
-    pricing:P([12000,14500,18000],[11000,13300,16500],[10000,12200,15200],[9200,11200,14000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"sd-126603", fid:"rolex-sd", family:"Sea-Dweller",
-    name:"Sea-Dweller", nick:"Gold/Steel Two-Tone", ref:"126603",
-    mat:"Rolesor Yellow Gold", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"43mm",
-    status:"current", era:"2019–Present",
-    desc:"Two-tone Sea-Dweller. The only two-tone dive watch in Rolex's current lineup.",
-    pricing:P([22000,27000,34000],[20000,25000,31500],[18200,23000,29000],[16800,21000,27000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"sd-1665", fid:"rolex-sd", family:"Sea-Dweller",
-    name:"Sea-Dweller", nick:"Double Red", ref:"1665",
-    mat:"Oystersteel", bezel:"Black Aluminum", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"vintage", era:"1967–1978",
-    desc:"The original 'Double Red' — first Sea-Dweller with text in red. Extraordinary rarity.",
-    pricing:P([30000,60000,160000],[25000,52000,140000],[20000,44000,120000],[15000,35000,95000]),
-    cM:{ Unworn:1.4, Mint:1.22, Excellent:1.0, "Very Good":.80, Good:.62, Fair:.42 },
-    eM:{ "Pre-1960":1.0,"1960s":1.5,"1970s":1.2,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── DEEPSEA ──────────────────────────────────────────────────────────────────
-  { id:"ds-136660-blk", fid:"rolex-deepsea", family:"Deepsea",
-    name:"Sea-Dweller Deepsea", nick:null, ref:"136660",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"Black", brace:"Oyster", size:"44mm",
-    status:"current", era:"2022–Present",
-    desc:"Current Deepsea. 3,900m water resistance. Ringlock System. Most capable dive watch in production.",
-    pricing:P([13500,16000,20000],[12400,14800,18500],[11400,13600,17000],[10500,12600,15800]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ds-136660-dblue", fid:"rolex-deepsea", family:"Deepsea",
-    name:"Sea-Dweller Deepsea", nick:"D-Blue James Cameron", ref:"136660",
-    mat:"Oystersteel", bezel:"Black Ceramic", dial:"D-Blue Ombré", brace:"Oyster", size:"44mm",
-    status:"current", era:"2014–Present",
-    desc:"The 'D-Blue' — gradient blue/black dial celebrating James Cameron's Mariana Trench dive. Iconic.",
-    pricing:P([16000,19500,25000],[14800,18000,23000],[13500,16600,21000],[12500,15400,19500]),
-    cM:{ Unworn:1.14, Mint:1.07, Excellent:1.0, "Very Good":.91, Good:.79, Fair:.64 },
-    eM:EM_STD, src:SRC_MAIN },
-
-  // ── OYSTER PERPETUAL ─────────────────────────────────────────────────────────
-  { id:"op-124300-blk", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:null, ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"The purist Rolex. No complications, no frills. Perfect entry point to the brand.",
-    pricing:P([6200,7500,9500],[5700,6900,8700],[5200,6400,8100],[4800,5900,7500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-124300-blu", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:null, ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Blue", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Blue dial OP41.",
-    pricing:P([6400,7800,9900],[5900,7200,9100],[5400,6600,8400],[5000,6100,7800]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-124300-coral", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:null, ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Coral Red", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Vivid coral red dial — modern, bold, and commands premium over standard dials.",
-    pricing:P([7000,8800,11500],[6400,8100,10600],[5900,7400,9700],[5400,6800,9000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-124300-turq", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:"Turquoise", ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Turquoise", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Turquoise dial — fan favorite, commands significant premium over other colors.",
-    pricing:P([8500,11000,15000],[7800,10100,13800],[7100,9300,12700],[6500,8500,11700]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-124300-yell", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:null, ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Yellow", brace:"Oyster", size:"41mm",
-    status:"current", era:"2020–Present",
-    desc:"Yellow dial — cheerful, bold, surprisingly wearable.",
-    pricing:P([6600,8200,10500],[6100,7600,9700],[5600,7000,8900],[5200,6400,8200]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-126000-coral", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 36", nick:null, ref:"126000",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Coral Red", brace:"Oyster", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"36mm OP in coral red. For those who prefer the classic smaller size.",
-    pricing:P([6200,7800,10000],[5700,7200,9200],[5200,6600,8500],[4800,6100,7900]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-126000-blu", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 36", nick:null, ref:"126000",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Blue", brace:"Oyster", size:"36mm",
-    status:"current", era:"2020–Present",
-    desc:"36mm OP in blue.",
-    pricing:P([5900,7300,9400],[5400,6800,8700],[5000,6300,8100],[4600,5800,7500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"op-124300-palm", fid:"rolex-op", family:"Oyster Perpetual",
-    name:"Oyster Perpetual 41", nick:"Palm Boutique", ref:"124300",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Palm Green", brace:"Oyster", size:"41mm",
-    status:"limited", era:"2022",
-    desc:"Boutique-only Palm motif dial OP41. Exceptional rarity.",
-    pricing:P([20000,32000,55000],[18000,29000,50000],[16000,26000,46000],[14000,24000,42000]),
-    cM:CM_RARE, eM:EM_STD, src:["Chrono24","Phillips"] },
-
-  // ── MILGAUSS ─────────────────────────────────────────────────────────────────
-  { id:"mg-116400-blk", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:null, ref:"116400",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2007–2023",
-    desc:"Standard Milgauss with lightning bolt seconds hand. Discontinued 2023.",
-    pricing:P([9000,11500,15000],[8200,10500,13700],[7500,9600,12600],[6900,8900,11600]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"mg-116400-wht", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:null, ref:"116400",
-    mat:"Oystersteel", bezel:"Smooth", dial:"White", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2007–2023",
-    desc:"White dial Milgauss without green crystal. Discontinued 2023.",
-    pricing:P([8500,10800,14000],[7800,9900,12900],[7100,9100,11900],[6600,8400,11000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"mg-116400gv-blk", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:"Green Glass Black", ref:"116400GV",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2007–2023",
-    desc:"Green crystal 'GV' version — most sought Milgauss. Unique green sapphire crystal.",
-    pricing:P([12000,15500,20000],[11000,14200,18500],[10000,13100,17000],[9200,12000,15700]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"mg-116400gv-wht", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:"Green Glass White", ref:"116400GV",
-    mat:"Oystersteel", bezel:"Smooth", dial:"White", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2007–2023",
-    desc:"Green glass Milgauss with white dial. Less common than black dial.",
-    pricing:P([11000,14000,18500],[10000,12800,17000],[9200,11800,15700],[8500,10900,14500]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"mg-zblue", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:"Z-Blue Boutique", ref:"116400GV",
-    mat:"Oystersteel", bezel:"Smooth", dial:"Z-Blue", brace:"Oyster", size:"40mm",
-    status:"limited", era:"2014–2023",
-    desc:"Z-Blue (electric blue) boutique exclusive. Most vibrant and rare Milgauss. Discontinued 2023.",
-    pricing:P([18000,25000,38000],[16500,22500,34000],[15000,20500,31000],[13500,18500,28000]),
-    cM:CM_RARE, eM:EM_STD, src:["Chrono24","Phillips"] },
-
-  { id:"mg-6541", fid:"rolex-mg", family:"Milgauss",
-    name:"Milgauss", nick:"Original Honeycomb", ref:"6541",
-    mat:"Oystersteel", bezel:"Honeycomb/Fixed", dial:"Black", brace:"Oyster", size:"37mm",
-    status:"vintage", era:"1956–1960",
-    desc:"The original Milgauss with distinctive honeycomb bezel. Extremely rare in any condition.",
-    pricing:P([40000,80000,200000],[0,0,0],[0,0,0],[20000,50000,140000]),
-    cM:{ Unworn:1.5, Mint:1.3, Excellent:1.0, "Very Good":.78, Good:.58, Fair:.38 },
-    eM:{ "Pre-1960":1.8,"1960s":1.4,"1970s":1.0,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:SRC_VTG },
-
-  // ── AIR-KING ─────────────────────────────────────────────────────────────────
-  { id:"ak-126900", fid:"rolex-ak", family:"Air-King",
-    name:"Air-King", nick:null, ref:"126900",
-    mat:"Oystersteel", bezel:"Fixed", dial:"Black/Yellow Indices", brace:"Oyster", size:"40mm",
-    status:"current", era:"2022–Present",
-    desc:"Tribute to aviation. Black dial with yellow/green indices. 24hr display. Caliber 3230.",
-    pricing:P([7500,9000,11500],[6900,8300,10600],[6300,7700,9800],[5800,7100,9000]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  { id:"ak-116900", fid:"rolex-ak", family:"Air-King",
-    name:"Air-King", nick:"Previous Gen", ref:"116900",
-    mat:"Oystersteel", bezel:"Fixed", dial:"Black", brace:"Oyster", size:"40mm",
-    status:"discontinued", era:"2016–2022",
-    desc:"Previous generation Air-King. Discontinued 2022 when current ref launched.",
-    pricing:P([6000,7500,9800],[5500,6900,9000],[5000,6400,8300],[4600,5900,7700]),
-    cM:CM_STD, eM:EM_STD, src:SRC_MAIN },
-
-  // ── 1908 ─────────────────────────────────────────────────────────────────────
-  { id:"r1908-52508-silv", fid:"rolex-1908", family:"1908",
-    name:"1908", nick:"White Gold Silver", ref:"52508",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"39mm",
-    status:"current", era:"2023–Present",
-    desc:"Rolex's new dress watch collection. Slim 39mm, Caliber 7140. A refined departure from sport watches.",
-    pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,27500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"r1908-52508-blk", fid:"rolex-1908", family:"1908",
-    name:"1908", nick:"White Gold Black", ref:"52508",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Black", brace:"Leather", size:"39mm",
-    status:"current", era:"2023–Present",
-    desc:"Black dial 1908 in white gold.",
-    pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,27500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"r1908-52509-champ", fid:"rolex-1908", family:"1908",
-    name:"1908", nick:"Yellow Gold Champagne", ref:"52509",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"Leather", size:"39mm",
-    status:"current", era:"2023–Present",
-    desc:"Yellow gold 1908 — classic warm tone for the new dress collection.",
-    pricing:P([28000,36000,46000],[25500,33000,42000],[23000,30000,38500],[21000,27500,35500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"r1908-52509-silv", fid:"rolex-1908", family:"1908",
-    name:"1908", nick:"Yellow Gold Silver", ref:"52509",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"39mm",
-    status:"current", era:"2023–Present",
-    desc:"Yellow gold 1908 with silver dial.",
-    pricing:P([27000,35000,45000],[24500,32000,41000],[22000,29000,37500],[20000,26500,34500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  // ── LAND-DWELLER ─────────────────────────────────────────────────────────────
-  { id:"ld-128403-blu", fid:"rolex-ld", family:"Land-Dweller",
-    name:"Land-Dweller", nick:"Steel Blue", ref:"128403",
-    mat:"Oystersteel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"40mm",
-    status:"current", era:"2025–Present",
-    desc:"Brand new for 2025. Rolex's first integrated bracelet sport watch. Extremely limited availability.",
-    pricing:P([25000,35000,55000],[22000,31000,50000],[19000,27000,45000],[17000,24000,40000]),
-    cM:{ Unworn:1.30, Mint:1.15, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_STD, src:SRC_C24 },
-
-  { id:"ld-128403-blk", fid:"rolex-ld", family:"Land-Dweller",
-    name:"Land-Dweller", nick:"Steel Black", ref:"128403",
-    mat:"Oystersteel", bezel:"Integrated SS", dial:"Black", brace:"Integrated SS", size:"40mm",
-    status:"current", era:"2025–Present",
-    desc:"Black dial Land-Dweller. Stealthy and sophisticated.",
-    pricing:P([24000,33000,52000],[21000,29500,47000],[18500,26000,42000],[16500,23000,38000]),
-    cM:{ Unworn:1.28, Mint:1.14, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_STD, src:SRC_C24 },
-
-  { id:"ld-128405-champ", fid:"rolex-ld", family:"Land-Dweller",
-    name:"Land-Dweller", nick:"Yellow Gold Champagne", ref:"128405",
-    mat:"18k Yellow Gold", bezel:"Integrated YG", dial:"Champagne", brace:"Integrated YG", size:"40mm",
-    status:"current", era:"2025–Present",
-    desc:"Yellow gold Land-Dweller — the ultimate precious metal expression of the new family.",
-    pricing:P([65000,90000,130000],[59000,83000,120000],[54000,76000,110000],[49000,70000,100000]),
-    cM:{ Unworn:1.30, Mint:1.15, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_STD, src:SRC_C24 },
-
-  { id:"ld-128405-black", fid:"rolex-ld", family:"Land-Dweller",
-    name:"Land-Dweller", nick:"Yellow Gold Black", ref:"128405",
-    mat:"18k Yellow Gold", bezel:"Integrated YG", dial:"Black", brace:"Integrated YG", size:"40mm",
-    status:"current", era:"2025–Present",
-    desc:"Yellow gold Land-Dweller with black dial.",
-    pricing:P([63000,87000,126000],[57000,80000,116000],[52000,74000,107000],[47000,68000,98000]),
-    cM:{ Unworn:1.28, Mint:1.14, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_STD, src:SRC_C24 },
-
-  { id:"ld-128404-choc", fid:"rolex-ld", family:"Land-Dweller",
-    name:"Land-Dweller", nick:"Everose Chocolate", ref:"128404",
-    mat:"18k Everose Gold", bezel:"Integrated RG", dial:"Chocolate", brace:"Integrated RG", size:"40mm",
-    status:"current", era:"2025–Present",
-    desc:"Everose Land-Dweller with chocolate dial. Warm and distinctive.",
-    pricing:P([60000,82000,118000],[55000,75000,108000],[50000,69000,100000],[45000,64000,92000]),
-    cM:{ Unworn:1.28, Mint:1.14, Excellent:1.0, "Very Good":.90, Good:.77, Fair:.62 },
-    eM:EM_STD, src:SRC_C24 },
-
-  // ── CELLINI ──────────────────────────────────────────────────────────────────
-  { id:"cell-50509", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Time", nick:"Yellow Gold Champagne", ref:"50509",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"Cellini Time in yellow gold. Discontinued 2023 when 1908 replaced the dress line.",
-    pricing:P([12000,16000,22000],[11000,14500,20000],[10000,13300,18500],[9000,12200,17000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"cell-50505", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Time", nick:"White Gold Silver", ref:"50505",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"White gold Cellini Time. Elegant discontinued dress watch.",
-    pricing:P([12000,16000,22000],[11000,14500,20000],[10000,13300,18500],[9000,12200,17000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"cell-50509-blk", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Time", nick:"Yellow Gold Black", ref:"50509",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Black", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"Black dial Cellini Time in yellow gold.",
-    pricing:P([11500,15500,21000],[10500,14000,19000],[9500,12800,17500],[8700,11700,16000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"cell-50519", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Date", nick:"White Gold Silver", ref:"50519",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"Cellini Date — adds date function to the dress watch.",
-    pricing:P([12500,17000,23000],[11500,15500,21000],[10500,14200,19500],[9500,13000,18000]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"cell-50525", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Dual Time", nick:"Yellow Gold Champagne", ref:"50525",
-    mat:"18k Yellow Gold", bezel:"Fluted", dial:"Champagne", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"Cellini Dual Time — GMT function in a dress watch. Rare and underappreciated.",
-    pricing:P([13500,18500,25000],[12500,17000,23000],[11500,15500,21000],[10500,14200,19500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
-  { id:"cell-50529", fid:"rolex-cellini", family:"Cellini",
-    name:"Cellini Dual Time", nick:"White Gold Silver", ref:"50529",
-    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2014–2023",
-    desc:"White gold Cellini Dual Time.",
-    pricing:P([13500,18500,25000],[12500,17000,23000],[11500,15500,21000],[10500,14200,19500]),
-    cM:CM_GOLD, eM:EM_STD, src:SRC_C24 },
-
+  // SUBMARINER NO DATE
+  {id:"sub-nd-124060",fid:"rolex-subnd",family:"Submariner (No Date)",name:"Submariner",nick:null,ref:"124060",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"The purist's Sub. No date, symmetrical dial, Caliber 3230, 70hr power reserve. The cleanest Submariner expression.",pricing:P([10500,12000,14500],[9800,11200,13500],[8900,10400,12500],[8200,9600,11500]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-nd-114060",fid:"rolex-subnd",family:"Submariner (No Date)",name:"Submariner",nick:"Pre-124060",ref:"114060",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2012,endYear:2020,desc:"Previous 40mm no-date Sub. Caliber 3130. Discontinued 2020. Collectors prize the slightly smaller case.",pricing:P([9500,11000,13500],[8700,10100,12500],[8000,9300,11500],[7400,8700,10700]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-nd-5513",fid:"rolex-subnd",family:"Submariner (No Date)",name:"Submariner",nick:"Maxi Dial",ref:"5513",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"vintage",startYear:1962,endYear:1989,desc:"Long-running no-date icon. Maxi dial and gilt dial variants are most prized. Tropical dials command enormous premiums.",vintageNote:VN_SUB,pricing:P([8000,14000,28000],[7000,12000,24000],[6000,10000,20000],[4500,8000,16000]),cM:CM_VTG,yM:YM_SUB,src:SRC_VTG},
+  {id:"sub-nd-5512",fid:"rolex-subnd",family:"Submariner (No Date)",name:"Submariner",nick:"Crown Guard",ref:"5512",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"vintage",startYear:1959,endYear:1978,desc:"Crown guards, non-quickset. One of the most desirable vintage Subs. Gilt and tropical dials reach six figures.",vintageNote:VN_SUB,pricing:P([18000,35000,80000],[15000,30000,70000],[12000,25000,60000],[10000,20000,50000]),cM:CM_VTG,yM:YM_SUB,src:SRC_VTG},
+  {id:"sub-nd-6204",fid:"rolex-subnd",family:"Submariner (No Date)",name:"Submariner",nick:"First Submariner",ref:"6204",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black",brace:"Oyster",size:"37mm",status:"vintage",startYear:1953,endYear:1955,desc:"The very first Submariner reference. Museum-quality rarity. Six-figure territory for any presentable example.",vintageNote:VN_SUB,pricing:P([40000,90000,200000],[35000,80000,180000],[28000,65000,150000],[20000,50000,120000]),cM:CM_VTG,yM:YM_SUB,src:SRC_VTG},
+
+  // SUBMARINER DATE
+  {id:"sub-126610ln",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:null,ref:"126610LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"The quintessential dive watch. 41mm, Caliber 3235, 70hr power reserve. Trades 35–45% above retail.",pricing:P([13000,14500,16500],[12000,13400,15200],[11200,12600,14200],[10500,11800,13500]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-126610lv",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Starbucks",ref:"126610LV",mat:"Oystersteel",bezel:"Green Ceramic",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"'Starbucks' — green Cerachrom bezel on black dial. Commands meaningful premium over the standard black Sub.",pricing:P([13500,15500,18500],[12500,14300,17000],[11500,13200,15800],[10800,12200,14800]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-126613ln",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:null,ref:"126613LN",mat:"Rolesor Yellow Gold",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Two-tone Oystersteel and 18k yellow gold. Broad collector appeal and instantly recognizable.",pricing:P([16000,18500,22000],[14800,17000,20000],[13500,15800,18500],[12500,14500,17000]),cM:CM_GOLD,yM:YM_SUB,src:SRC_C24},
+  {id:"sub-126613lb",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Bluesy",ref:"126613LB",mat:"Rolesor Yellow Gold",bezel:"Blue Ceramic",dial:"Blue",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"'Bluesy' — two-tone with matching blue bezel and dial. Commands strong premium over black two-tone.",pricing:P([18000,21000,26000],[16500,19500,24000],[15000,18000,22000],[14000,16500,20000]),cM:CM_GOLD,yM:YM_SUB,src:SRC_C24},
+  {id:"sub-126618ln",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Yellow Gold Black",ref:"126618LN",mat:"18k Yellow Gold",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Full 18k yellow gold Submariner. The ultimate precious metal expression of the Sub.",pricing:P([42000,50000,62000],[38000,46000,57000],[34000,42000,52000],[30000,38000,47000]),cM:CM_GOLD,yM:YM_SUB,src:SRC_C24},
+  {id:"sub-126618lb",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Yellow Gold Blue",ref:"126618LB",mat:"18k Yellow Gold",bezel:"Blue Ceramic",dial:"Blue",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Yellow gold with blue bezel and dial. Slightly rarer than black version, commands premium.",pricing:P([44000,53000,65000],[40000,49000,60000],[36000,45000,55000],[33000,41000,51000]),cM:CM_GOLD,yM:YM_SUB,src:SRC_C24},
+  {id:"sub-126619lb",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Smurf",ref:"126619LB",mat:"18k White Gold",bezel:"Blue Ceramic",dial:"Blue",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"The 'Smurf' — all white-gold with electric blue. One of the most desirable Submariner configurations.",pricing:P([46000,56000,70000],[42000,52000,65000],[38000,48000,60000],[35000,44000,55000]),cM:CM_STD,yM:YM_SUB,src:SRC_C24},
+  {id:"sub-116610ln",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Pre-Ceramic 40mm",ref:"116610LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2010,endYear:2020,desc:"Beloved 40mm pre-126610. Caliber 3135. Discontinued 2020. Collectors prize the smaller proportions.",pricing:P([11500,13000,15500],[10500,11800,14000],[9500,10800,13000],[8800,10000,12000]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-116610lv",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Hulk",ref:"116610LV",mat:"Oystersteel",bezel:"Green Ceramic",dial:"Green",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2010,endYear:2020,desc:"The iconic 'Hulk' — full green dial AND bezel. Discontinued 2020, surged post-discontinuation.",pricing:P([18000,22000,28000],[16500,20000,26000],[15000,18500,24000],[14000,17000,22000]),cM:{Unworn:1.18,Mint:1.09,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_DISC_HULL,src:SRC_C24},
+  {id:"sub-16610lv",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Kermit",ref:"16610LV",mat:"Oystersteel",bezel:"Green Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2003,endYear:2010,desc:"50th Anniversary 'Kermit' — green aluminum bezel, black dial. First green Sub. Beloved neo-vintage.",pricing:P([13000,16000,20000],[12000,14500,18500],[11000,13500,17000],[10000,12500,15500]),cM:{Unworn:1.16,Mint:1.08,Excellent:1.0,"Very Good":.90,Good:.78,Fair:.63},yM:YM_SUB,src:SRC_C24},
+  {id:"sub-16610",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Classic Aluminum Era",ref:"16610",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:1989,endYear:2010,desc:"The long-running 16610 — quintessential Submariner Date for two decades.",pricing:P([9000,11000,14000],[8200,10000,12800],[7500,9200,11800],[6900,8500,10900]),cM:CM_STD,yM:YM_SUB,src:SRC_MAIN},
+  {id:"sub-1680",fid:"rolex-sub",family:"Submariner Date",name:"Submariner Date",nick:"Red Sub",ref:"1680",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black/Red Text",brace:"Oyster",size:"40mm",status:"vintage",startYear:1965,endYear:1979,desc:"The legendary 'Red Sub' — SUBMARINER printed in red. Value varies dramatically by dial version and condition.",vintageNote:VN_SUB,pricing:P([18000,28000,55000],[16000,24000,48000],[14000,20000,40000],[10000,16000,30000]),cM:{Unworn:1.3,Mint:1.15,Excellent:1.0,"Very Good":.85,Good:.70,Fair:.50},yM:YM_SUB,src:SRC_VTG},
+
+  // GMT-MASTER II
+  {id:"gmt-pepsi-jub",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Pepsi — Jubilee",ref:"126710BLRO",mat:"Oystersteel",bezel:"Red/Blue Ceramic",dial:"Black",brace:"Jubilee",size:"40mm",status:"discontinued",startYear:2018,endYear:2026,desc:"Discontinued April 14 2026. The iconic Pepsi on Jubilee. Prices surging post-discontinuation — 2025–2026 examples command the highest premiums as the last off the line.",pricing:P([24000,31000,42000],[21000,27500,37000],[18500,24000,32000],[16000,21000,28000]),cM:{Unworn:1.35,Mint:1.18,Excellent:1.0,"Very Good":.88,Good:.74,Fair:.60},yM:YM_PEPSI_2026,src:["WatchGuys","Chrono24","LuxuryWatchesUSA"]},
+  {id:"gmt-pepsi-oys",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Pepsi — Oyster",ref:"126710BLRO",mat:"Oystersteel",bezel:"Red/Blue Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2021,endYear:2026,desc:"Pepsi on Oyster bracelet. Also discontinued April 2026. Slightly below Jubilee in market value.",pricing:P([22000,28000,38000],[20000,25500,34000],[18000,23000,31000],[16000,21000,28000]),cM:{Unworn:1.30,Mint:1.15,Excellent:1.0,"Very Good":.88,Good:.74,Fair:.60},yM:YM_PEPSI_2026,src:SRC_C24},
+  {id:"gmt-batman-jub",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Batman — Jubilee",ref:"126710BLNR",mat:"Oystersteel",bezel:"Blue/Black Ceramic",dial:"Black",brace:"Jubilee",size:"40mm",status:"current",startYear:2019,endYear:2026,desc:"The 'Batman' on Jubilee. More accessible than Pepsi, equally wearable. Consistently strong demand.",pricing:P([13200,15800,19000],[12000,14400,17200],[11000,13200,16000],[10000,12000,14500]),cM:CM_STD,yM:YM_GMT,src:SRC_MAIN},
+  {id:"gmt-batgirl-oys",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Batgirl — Oyster",ref:"126710BLNR",mat:"Oystersteel",bezel:"Blue/Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"current",startYear:2019,endYear:2026,desc:"'Batgirl' — Batman configuration on Oyster bracelet. Sportier look.",pricing:P([12500,15000,18000],[11500,13700,16500],[10500,12500,15200],[9800,11500,14000]),cM:CM_STD,yM:YM_GMT,src:SRC_MAIN},
+  {id:"gmt-brucewaynej",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Bruce Wayne — Jubilee",ref:"126710BKSO",mat:"Oystersteel",bezel:"Black/Oystersteel",dial:"Black",brace:"Jubilee",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"'Bruce Wayne' — stealthy black and steel bezel. Understated and increasingly desirable.",pricing:P([14000,17000,21000],[13000,15500,19000],[12000,14200,17500],[11000,13000,16000]),cM:CM_STD,yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-sprite-oys",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Sprite — Oyster",ref:"126720VTNR",mat:"Oystersteel",bezel:"Green/Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"'Sprite' — left-hand crown. Green/black bezel. Very popular with collectors.",pricing:P([18000,23000,30000],[16500,21000,27500],[15000,19000,25000],[14000,17500,23000]),cM:{Unworn:1.18,Mint:1.09,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-sprite-jub",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Sprite — Jubilee",ref:"126720VTNR",mat:"Oystersteel",bezel:"Green/Black Ceramic",dial:"Black",brace:"Jubilee",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"Sprite on Jubilee — the more refined, dressy Sprite configuration.",pricing:P([19000,24500,32000],[17500,22500,29500],[16000,20500,27000],[15000,19000,25000]),cM:{Unworn:1.18,Mint:1.09,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-rb-oys",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Root Beer — Oyster",ref:"126711CHNR",mat:"Rolesor Everose Gold",bezel:"Brown/Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"current",startYear:2018,endYear:2026,desc:"Two-tone 'Root Beer' — Everose and steel, brown/black bezel. Warm and distinctive.",pricing:P([24000,29000,36000],[22000,27000,33000],[20000,25000,30500],[18500,23000,28000]),cM:CM_GOLD,yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-rb-jub",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Root Beer — Jubilee",ref:"126711CHNR",mat:"Rolesor Everose Gold",bezel:"Brown/Black Ceramic",dial:"Black",brace:"Jubilee",size:"40mm",status:"current",startYear:2018,endYear:2026,desc:"Root Beer on Jubilee — the more elegant presentation of the two-tone GMT.",pricing:P([25000,30500,38000],[23000,28000,35000],[21000,26000,32000],[19500,24000,29500]),cM:CM_GOLD,yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-fullrb",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Full Root Beer",ref:"126715CHNR",mat:"18k Everose Gold",bezel:"Brown/Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"current",startYear:2018,endYear:2026,desc:"Full Everose gold Root Beer — the ultimate GMT. Rare, expensive, and exceptionally distinctive.",pricing:P([55000,68000,85000],[50000,62000,78000],[45000,57000,72000],[41000,52000,66000]),cM:CM_GOLD,yM:YM_GMT,src:SRC_C24},
+  {id:"gmt-pepsiwg",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Pepsi White Gold",ref:"126719BLRO",mat:"18k White Gold",bezel:"Red/Blue Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2018,endYear:2026,desc:"White gold Pepsi — discontinued April 2026 alongside steel. Rarer and commands significant premium.",pricing:P([38000,48000,62000],[35000,44000,57000],[32000,40000,52000],[29000,37000,48000]),cM:{Unworn:1.15,Mint:1.07,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_PEPSI_2026,src:SRC_MAIN},
+  {id:"gmt-pepsiwg-met",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Pepsi WG Meteorite",ref:"126719BLRO",mat:"18k White Gold",bezel:"Red/Blue Ceramic",dial:"Meteorite",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2019,endYear:2026,desc:"White gold Pepsi with meteorite dial — among the rarest GMT configurations ever made.",pricing:P([55000,75000,100000],[50000,68000,92000],[45000,62000,85000],[40000,57000,78000]),cM:CM_RARE,yM:YM_PEPSI_2026,src:["Chrono24","Phillips"]},
+  {id:"gmt-1675",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master",nick:"Original Pepsi",ref:"1675",mat:"Oystersteel",bezel:"Red/Blue Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"vintage",startYear:1959,endYear:1980,desc:"The original long-running Pepsi GMT. Gilt dials and Underline variants most coveted.",vintageNote:VN_GEN,pricing:P([15000,25000,55000],[13000,22000,48000],[11000,18000,40000],[8000,14000,32000]),cM:CM_VTG,yM:YM_GMT,src:SRC_VTG},
+  {id:"gmt-6542",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master",nick:"Bakelite Pepsi",ref:"6542",mat:"Oystersteel",bezel:"Red/Blue Bakelite",dial:"Black",brace:"Oyster",size:"37mm",status:"vintage",startYear:1955,endYear:1959,desc:"The very first GMT-Master, created for Pan Am pilots. Bakelite bezel extremely rare intact. Museum-quality.",vintageNote:VN_GEN,pricing:P([50000,100000,250000],[0,0,0],[0,0,0],[30000,70000,180000]),cM:{Unworn:1.5,Mint:1.3,Excellent:1.0,"Very Good":.78,Good:.58,Fair:.40},yM:YM_GMT,src:SRC_VTG},
+  {id:"gmt-116710blnr",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"OG Batman",ref:"116710BLNR",mat:"Oystersteel",bezel:"Blue/Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2013,endYear:2019,desc:"The original ceramic Batman on Oyster. Introduced the blue/black colorway that defined a generation.",pricing:P([12000,14500,18000],[11000,13200,16500],[10000,12000,15000],[9000,11000,14000]),cM:CM_STD,yM:YM_GMT,src:SRC_MAIN},
+  {id:"gmt-16710-coke",fid:"rolex-gmt",family:"GMT-Master II",name:"GMT-Master II",nick:"Coke",ref:"16710",mat:"Oystersteel",bezel:"Red/Black Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:1989,endYear:2007,desc:"'Coke' bezel — red and black aluminum. Last of the aluminum-bezel GMTs.",pricing:P([10000,13500,18000],[9000,12000,16000],[8000,10800,14500],[7000,9500,13000]),cM:{Unworn:1.16,Mint:1.08,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_GMT,src:SRC_C24},
+
+  // DAYTONA
+  {id:"day-116500-blk",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Reverse Panda",ref:"116500LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2016,endYear:2023,desc:"Black dial 116500LN — discontinued 2023. Caliber 4130. The original ceramic Daytona.",pricing:P([26000,30000,36000],[24000,28000,33000],[22000,25500,30000],[20000,23500,28000]),cM:{Unworn:1.18,Mint:1.09,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_DAYTONA,src:SRC_MAIN},
+  {id:"day-116500-wht",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Panda",ref:"116500LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"White",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2016,endYear:2023,desc:"White Panda 116500LN — the most coveted Daytona configuration. Commands premium over black.",pricing:P([28000,33000,40000],[26000,30500,37000],[24000,28000,34000],[22000,26000,32000]),cM:{Unworn:1.20,Mint:1.10,Excellent:1.0,"Very Good":.89,Good:.76,Fair:.61},yM:YM_DAYTONA,src:SRC_MAIN},
+  {id:"day-126500-blk",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Reverse Panda 60th",ref:"126500LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"Current-gen black Daytona. Caliber 4131, 72hr power reserve. Retail waitlists exceed 8 years.",pricing:P([28000,34000,42000],[26000,31500,39000],[24000,29000,36000],[22000,27000,33500]),cM:{Unworn:1.18,Mint:1.09,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_DAYTONA,src:SRC_C24},
+  {id:"day-126500-wht",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Panda 60th",ref:"126500LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"White",brace:"Oyster",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"Current white Panda — most in-demand watch on earth. Retail waitlists exceed 8 years.",pricing:P([32000,39000,48000],[29500,36000,44500],[27000,33000,41000],[25000,30500,38000]),cM:{Unworn:1.22,Mint:1.11,Excellent:1.0,"Very Good":.89,Good:.76,Fair:.61},yM:YM_DAYTONA,src:SRC_MAIN},
+  {id:"day-lemans",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Le Mans",ref:"126528LN",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"40mm",status:"limited",startYear:2023,endYear:2023,desc:"Le Mans 24h limited edition — first-ever Daytona with exhibition caseback. Extremely limited.",pricing:P([55000,80000,120000],[50000,73000,110000],[45000,66000,100000],[40000,60000,90000]),cM:CM_RARE,yM:YM_DAYTONA,src:["Chrono24","Phillips"]},
+  {id:"day-116508",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"John Mayer Green",ref:"116508",mat:"18k Yellow Gold",bezel:"Green Ceramic",dial:"Green",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2016,endYear:2023,desc:"John Mayer's famous Hodinkee recommendation sent this into the stratosphere. Discontinued and surging.",pricing:P([58000,75000,100000],[52000,68000,92000],[47000,62000,84000],[43000,57000,77000]),cM:CM_GOLD,yM:YM_DAYTONA,src:SRC_C24},
+  {id:"day-126508",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Yellow Gold Green",ref:"126508",mat:"18k Yellow Gold",bezel:"Green Ceramic",dial:"Green",brace:"Oyster",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"Current-gen yellow gold green Daytona. Continuing the legend of the 116508.",pricing:P([62000,80000,105000],[57000,74000,97000],[52000,68000,90000],[47000,62000,83000]),cM:CM_GOLD,yM:YM_DAYTONA,src:SRC_C24},
+  {id:"day-126518ln",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Everose Black",ref:"126518LN",mat:"18k Everose Gold",bezel:"Black Ceramic",dial:"Black",brace:"Oysterflex",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"Current Everose Daytona on Oysterflex. Sporty and distinctive.",pricing:P([40000,50000,64000],[37000,46000,59000],[34000,42000,54000],[31000,38500,50000]),cM:CM_GOLD,yM:YM_DAYTONA,src:SRC_C24},
+  {id:"day-126519ln",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"White Gold Black",ref:"126519LN",mat:"18k White Gold",bezel:"Black Ceramic",dial:"Black",brace:"Oysterflex",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"White gold Daytona in stealth. Increasingly desirable among sophisticated collectors.",pricing:P([42000,53000,68000],[38000,48000,62000],[35000,44000,57000],[32000,40000,52000]),cM:CM_GOLD,yM:YM_DAYTONA,src:SRC_C24},
+  {id:"day-126506",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Platinum Ice Blue",ref:"126506",mat:"Platinum",bezel:"Chestnut Ceramic",dial:"Ice Blue",brace:"Oyster",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"The apex Daytona — platinum with ice blue dial exclusive to platinum. Exceptionally rare.",pricing:P([90000,120000,160000],[82000,110000,148000],[75000,100000,136000],[68000,92000,125000]),cM:CM_GOLD,yM:YM_DAYTONA,src:["Chrono24","Phillips","WatchCharts"]},
+  {id:"day-6239",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Paul Newman",ref:"6239",mat:"Oystersteel",bezel:"Steel Tachymeter",dial:"Exotic",brace:"Oyster",size:"36mm",status:"vintage",startYear:1963,endYear:1969,desc:"Paul Newman's personal ref sold for $17.8M at Phillips. Exotic dial versions are the most valuable Rolexes ever sold.",vintageNote:VN_DAY,pricing:P([30000,80000,500000],[0,0,0],[0,0,0],[18000,50000,350000]),cM:{Unworn:1.5,Mint:1.25,Excellent:1.0,"Very Good":.80,Good:.62,Fair:.42},yM:YM_DAYTONA,src:SRC_VTG},
+  {id:"day-16520",fid:"rolex-daytona",family:"Daytona",name:"Cosmograph Daytona",nick:"Zenith Daytona",ref:"16520",mat:"Oystersteel",bezel:"Steel Tachymeter",dial:"Black",brace:"Oyster",size:"40mm",status:"vintage",startYear:1988,endYear:2000,desc:"El Primero-powered automatic Daytona. The bridge between manual-wind and in-house eras. Highly collectible.",vintageNote:VN_DAY,pricing:P([18000,28000,50000],[16000,25000,44000],[14000,22000,38000],[11000,18000,32000]),cM:{Unworn:1.22,Mint:1.11,Excellent:1.0,"Very Good":.86,Good:.70,Fair:.52},yM:YM_DAYTONA,src:["Chrono24","Phillips","WatchCharts"]},
+
+  // DAY-DATE 36
+  {id:"dd36-128238-champ",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:null,ref:"128238",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"The classic President. Yellow gold, fluted bezel, champagne dial. The definitive Day-Date.",pricing:P([32000,40000,52000],[29000,37000,48000],[26000,34000,44000],[23000,30000,40000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128238-olive",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:null,ref:"128238",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Olive Green",brace:"President",size:"36mm",status:"current",startYear:2023,endYear:2026,desc:"Yellow gold with olive green dial — a fresh modern option commanding strong interest.",pricing:P([34000,42000,55000],[31000,39000,51000],[28000,36000,47000],[25000,33000,43000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128238-black",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:null,ref:"128238",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Black",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"Black dial Day-Date 36 in yellow gold.",pricing:P([33000,41000,53000],[30000,38000,49000],[27000,35000,45000],[24000,32000,41000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128238-met",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:"Meteorite Dial",ref:"128238",mat:"18k Yellow Gold",bezel:"Smooth",dial:"Meteorite",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"Meteorite dial — each dial is unique, cut from actual meteorite. Extraordinarily rare material.",pricing:P([45000,58000,75000],[41000,53000,69000],[38000,49000,64000],[35000,45000,59000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128239-silver",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:null,ref:"128239",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"White gold Day-Date 36 — cool-toned, refined luxury.",pricing:P([33000,41000,53000],[30000,38000,49000],[27000,35000,45000],[24000,32000,41000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128235-choc",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:null,ref:"128235",mat:"18k Everose Gold",bezel:"Fluted",dial:"Chocolate",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"Everose gold with chocolate dial — warm, rich, and distinctive.",pricing:P([34000,43000,56000],[31000,40000,52000],[28000,37000,48000],[25000,34000,44000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128206-iceblue",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:"Platinum",ref:"128206",mat:"Platinum",bezel:"Fluted",dial:"Ice Blue",brace:"President",size:"36mm",status:"current",startYear:2019,endYear:2026,desc:"Platinum President — the apex DD36. Ice blue is exclusive to platinum models.",pricing:P([52000,68000,88000],[48000,63000,82000],[44000,58000,76000],[40000,54000,70000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128206-met",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:"Platinum Meteorite",ref:"128206",mat:"Platinum",bezel:"Fluted",dial:"Meteorite",brace:"President",size:"36mm",status:"current",startYear:2022,endYear:2026,desc:"Platinum DD36 with meteorite dial — the most exclusive dial material in the President family.",pricing:P([65000,85000,110000],[60000,78000,102000],[55000,72000,95000],[50000,66000,88000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-128345rbr",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date 36",nick:"Diamond Baguette",ref:"128345RBR",mat:"18k Yellow Gold",bezel:"Baguette Diamond",dial:"Chocolate",brace:"President",size:"36mm",status:"current",startYear:2022,endYear:2026,desc:"Factory diamond baguette bezel — the most glamorous Day-Date 36 configuration.",pricing:P([65000,85000,115000],[60000,78000,105000],[55000,72000,97000],[50000,66000,90000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd36-1803",fid:"rolex-dd36",family:"Day-Date 36",name:"Day-Date",nick:"Original President",ref:"1803",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"President",size:"36mm",status:"vintage",startYear:1959,endYear:1977,desc:"The original Day-Date that established the President legend. Worn by every US president since Eisenhower.",vintageNote:VN_GEN,pricing:P([12000,20000,40000],[10000,17000,35000],[8500,14000,30000],[7000,11000,24000]),cM:{Unworn:1.3,Mint:1.15,Excellent:1.0,"Very Good":.83,Good:.67,Fair:.48},yM:YM_DAY,src:SRC_VTG},
+
+  // DAY-DATE 40
+  {id:"dd40-228238-champ",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:null,ref:"228238",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"President",size:"40mm",status:"current",startYear:2015,endYear:2026,desc:"The modern 40mm President. Caliber 3255, 70hr power reserve.",pricing:P([40000,48000,60000],[36000,44000,55000],[32000,40000,50000],[29000,36000,45000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd40-228238-olive",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:null,ref:"228238",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Olive Green",brace:"President",size:"40mm",status:"current",startYear:2023,endYear:2026,desc:"Olive green DD40 — one of the freshest and most sought-after current dial options.",pricing:P([43000,52000,65000],[39000,48000,60000],[35000,44000,55000],[32000,40000,50000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd40-228235-choc",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:null,ref:"228235",mat:"18k Everose Gold",bezel:"Fluted",dial:"Chocolate",brace:"President",size:"40mm",status:"current",startYear:2015,endYear:2026,desc:"Everose with chocolate — the warmest, most distinctive DD40 palette.",pricing:P([42000,51000,63000],[38000,47000,58000],[35000,43000,53000],[32000,39000,49000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd40-228239-silver",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:null,ref:"228239",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"President",size:"40mm",status:"current",startYear:2015,endYear:2026,desc:"White gold DD40. Refined and cool-toned presidential statement.",pricing:P([41000,50000,62000],[37000,46000,57000],[34000,42000,52000],[31000,38000,48000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd40-228206-iceblue",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:"Platinum",ref:"228206",mat:"Platinum",bezel:"Fluted",dial:"Ice Blue",brace:"President",size:"40mm",status:"current",startYear:2015,endYear:2026,desc:"Platinum President 40mm — the absolute apex Day-Date. Ice blue exclusive to platinum.",pricing:P([60000,78000,100000],[55000,72000,93000],[50000,66000,86000],[46000,61000,80000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+  {id:"dd40-228396tbr",fid:"rolex-dd40",family:"Day-Date 40",name:"Day-Date 40",nick:"Diamond Baguette",ref:"228396TBR",mat:"18k Yellow Gold",bezel:"Baguette Diamond",dial:"Olive",brace:"President",size:"40mm",status:"limited",startYear:2022,endYear:2026,desc:"Factory diamond baguette bezel — the most opulent DD40 configuration.",pricing:P([90000,120000,160000],[82000,110000,148000],[75000,100000,136000],[68000,92000,125000]),cM:CM_GOLD,yM:YM_DAY,src:SRC_C24},
+
+  // DATEJUST 36
+  {id:"dj36-126200-blk",fid:"rolex-dj36",family:"Datejust 36",name:"Datejust 36",nick:null,ref:"126200",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"Clean steel DJ36. Smooth bezel, black dial. Versatile entry-level Rolex.",pricing:P([6800,8000,10000],[6200,7400,9200],[5700,6800,8500],[5200,6300,7800]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj36-126200-blu",fid:"rolex-dj36",family:"Datejust 36",name:"Datejust 36",nick:null,ref:"126200",mat:"Oystersteel",bezel:"Smooth",dial:"Blue",brace:"Oyster",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"Blue dial smooth bezel — most popular DJ36 configuration.",pricing:P([7000,8200,10200],[6400,7600,9400],[5900,7000,8700],[5400,6500,8000]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj36-126200-silv",fid:"rolex-dj36",family:"Datejust 36",name:"Datejust 36",nick:null,ref:"126200",mat:"Oystersteel",bezel:"Smooth",dial:"Silver",brace:"Oyster",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"Silver dial smooth bezel DJ36.",pricing:P([6900,8100,10100],[6300,7500,9300],[5800,6900,8600],[5300,6400,8000]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj36-126233-silv",fid:"rolex-dj36",family:"Datejust 36",name:"Datejust 36",nick:null,ref:"126233",mat:"Rolesor Yellow Gold",bezel:"Fluted",dial:"Silver",brace:"Jubilee",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"Two-tone Rolesor with fluted bezel on Jubilee. The classic elegant combination.",pricing:P([9500,11500,14500],[8700,10600,13300],[8000,9700,12200],[7300,8900,11200]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj36-126234-blu",fid:"rolex-dj36",family:"Datejust 36",name:"Datejust 36",nick:null,ref:"126234",mat:"Oystersteel/White Gold",bezel:"Fluted",dial:"Blue",brace:"Jubilee",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"Steel with white gold fluted bezel — blue Jubilee. Clean and prestigious.",pricing:P([9000,10800,13500],[8200,10000,12500],[7500,9200,11500],[6900,8500,10700]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+
+  // DATEJUST 41
+  {id:"dj41-126300-blk",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126300",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Clean steel DJ41. Black dial smooth bezel on Oyster. The workhorse Rolex.",pricing:P([7500,9000,11200],[6900,8300,10300],[6300,7600,9500],[5800,7000,8800]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126300-blu",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126300",mat:"Oystersteel",bezel:"Smooth",dial:"Blue",brace:"Oyster",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Blue dial smooth bezel — most popular DJ41 configuration.",pricing:P([7800,9400,11700],[7100,8600,10700],[6500,7900,9900],[6000,7300,9200]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126300-silv",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126300",mat:"Oystersteel",bezel:"Smooth",dial:"Silver",brace:"Oyster",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Silver dial DJ41 on Oyster.",pricing:P([7600,9200,11500],[7000,8500,10600],[6400,7800,9800],[5900,7200,9100]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126334-blu",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126334",mat:"Oystersteel/White Gold",bezel:"Fluted",dial:"Blue",brace:"Jubilee",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Fluted WG bezel, blue dial on Jubilee — the definitive dressy DJ41.",pricing:P([9200,10800,13000],[8400,9900,11900],[7600,9100,10900],[6900,8200,10000]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126334-blk",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126334",mat:"Oystersteel/White Gold",bezel:"Fluted",dial:"Black",brace:"Jubilee",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Black dial fluted DJ41. Classic and versatile.",pricing:P([8800,10500,12700],[8100,9700,11700],[7400,8900,10800],[6800,8200,10000]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126333-champ",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126333",mat:"Rolesor Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"Jubilee",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Two-tone YG/steel DJ41 on Jubilee. The complete elegant package.",pricing:P([11000,13500,17000],[10000,12500,15700],[9100,11400,14500],[8400,10400,13400]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-126331-blk",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:null,ref:"126331",mat:"Rolesor Yellow Gold",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2016,endYear:2026,desc:"Two-tone YG/steel DJ41 on Oyster with smooth bezel. Sportier than the Jubilee version.",pricing:P([10500,13000,16500],[9600,12000,15300],[8800,11000,14200],[8100,10200,13200]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"dj41-palm",fid:"rolex-dj41",family:"Datejust 41",name:"Datejust 41",nick:"Palm Boutique",ref:"126300",mat:"Oystersteel",bezel:"Smooth",dial:"Palm Green",brace:"Oyster",size:"41mm",status:"limited",startYear:2023,endYear:2023,desc:"Boutique-exclusive palm motif dial. Extraordinarily rare, commands massive premium.",pricing:P([25000,38000,60000],[22000,34000,55000],[19000,30000,50000],[17000,27000,46000]),cM:CM_RARE,yM:YM_STD,src:["Chrono24","Phillips"]},
+
+  // SKY-DWELLER
+  {id:"sky-336934-blk",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"336934",mat:"Oystersteel",bezel:"Fluted",dial:"Black",brace:"Oyster",size:"42mm",status:"current",startYear:2023,endYear:2026,desc:"First steel Sky-Dweller on Oyster. Annual calendar + dual time zone. Caliber 9002.",pricing:P([18000,22000,28000],[16500,20000,25500],[15000,18500,23500],[14000,17000,21500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-336934-blu",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"336934",mat:"Oystersteel",bezel:"Fluted",dial:"Blue",brace:"Oyster",size:"42mm",status:"current",startYear:2023,endYear:2026,desc:"Blue dial steel Sky-Dweller — most popular steel configuration.",pricing:P([19000,23500,30000],[17500,21500,27500],[16000,19800,25500],[15000,18200,23500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-336934-silv",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"336934",mat:"Oystersteel",bezel:"Fluted",dial:"Silver",brace:"Oyster",size:"42mm",status:"current",startYear:2023,endYear:2026,desc:"Silver dial steel Sky-Dweller.",pricing:P([18500,22500,28500],[17000,20500,26000],[15500,18800,24000],[14500,17300,22000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-326938-champ",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"326938",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"Oyster",size:"42mm",status:"current",startYear:2012,endYear:2026,desc:"Yellow gold Sky-Dweller — Rolex's most sophisticated complication in gold.",pricing:P([52000,63000,78000],[47000,57000,70000],[43000,52000,64000],[38000,47000,58000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-326935-choc",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"326935",mat:"18k Everose Gold",bezel:"Fluted",dial:"Chocolate",brace:"Oyster",size:"42mm",status:"current",startYear:2012,endYear:2026,desc:"Everose gold with chocolate dial — warm and distinctive.",pricing:P([54000,65000,81000],[49000,60000,75000],[45000,55000,69000],[41000,50000,63000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-326939-white",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:null,ref:"326939",mat:"18k White Gold",bezel:"Fluted",dial:"White",brace:"Oyster",size:"42mm",status:"current",startYear:2012,endYear:2026,desc:"White gold Sky-Dweller with white dial — the most formal, elegant configuration.",pricing:P([55000,67000,83000],[50000,62000,77000],[46000,57000,71000],[42000,52000,65000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sky-palm",fid:"rolex-sky",family:"Sky-Dweller",name:"Sky-Dweller",nick:"Palm Boutique",ref:"336934",mat:"Oystersteel",bezel:"Fluted",dial:"Palm Green",brace:"Oyster",size:"42mm",status:"limited",startYear:2023,endYear:2023,desc:"Boutique-exclusive Palm dial — among the rarest current Rolex configurations.",pricing:P([45000,70000,110000],[40000,63000,100000],[36000,57000,92000],[33000,52000,85000]),cM:CM_RARE,yM:YM_STD,src:["Chrono24","Phillips"]},
+
+  // EXPLORER I
+  {id:"exp1-124270",fid:"rolex-exp1",family:"Explorer I",name:"Explorer",nick:null,ref:"124270",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"36mm",status:"current",startYear:2021,endYear:2026,desc:"36mm reintroduction. Beloved by purists for smaller, tool-watch proportions. Caliber 3230.",pricing:P([7800,9500,12000],[7100,8700,11000],[6500,8000,10200],[6000,7400,9500]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"exp1-224270",fid:"rolex-exp1",family:"Explorer I",name:"Explorer",nick:null,ref:"224270",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"42mm",status:"current",startYear:2021,endYear:2026,desc:"42mm Explorer — the larger modern option, new for 2021 alongside the 36mm.",pricing:P([8000,9800,12500],[7300,9000,11500],[6700,8300,10700],[6200,7700,9900]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"exp1-1016",fid:"rolex-exp1",family:"Explorer I",name:"Explorer",nick:"Classic 1016",ref:"1016",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"36mm",status:"vintage",startYear:1963,endYear:1989,desc:"The legendary 1016 — produced 26 years unchanged. Matte and tropical dial variants most coveted.",vintageNote:VN_GEN,pricing:P([10000,18000,45000],[8500,15000,38000],[7000,12500,32000],[5500,10000,26000]),cM:CM_VTG,yM:YM_STD,src:SRC_VTG},
+
+  // EXPLORER II
+  {id:"exp2-226570-blk",fid:"rolex-exp2",family:"Explorer II",name:"Explorer II",nick:null,ref:"226570",mat:"Oystersteel",bezel:"24hr Fixed",dial:"Black",brace:"Oyster",size:"42mm",status:"current",startYear:2021,endYear:2026,desc:"Black dial Explorer II. Orange 24-hour hand. Classic cave explorer's tool watch. Caliber 3285.",pricing:P([9000,11000,14000],[8200,10100,12900],[7500,9300,11900],[6900,8600,11000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"exp2-226570-wht",fid:"rolex-exp2",family:"Explorer II",name:"Explorer II",nick:"Polar",ref:"226570",mat:"Oystersteel",bezel:"24hr Fixed",dial:"White",brace:"Oyster",size:"42mm",status:"current",startYear:2021,endYear:2026,desc:"'Polar' white dial — the clean, bright variant. Very striking and particularly popular.",pricing:P([9500,11500,14800],[8700,10600,13600],[8000,9800,12600],[7400,9000,11700]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"exp2-1655",fid:"rolex-exp2",family:"Explorer II",name:"Explorer II",nick:"Steve McQueen / Freccione",ref:"1655",mat:"Oystersteel",bezel:"Orange 24hr Fixed",dial:"White",brace:"Oyster",size:"40mm",status:"vintage",startYear:1971,endYear:1985,desc:"The original Explorer II associated with Steve McQueen. Fixed 'Freccione' orange hand. Iconic vintage piece.",vintageNote:VN_GEN,pricing:P([20000,40000,90000],[17000,34000,78000],[14000,28000,66000],[10000,22000,52000]),cM:CM_VTG,yM:YM_STD,src:SRC_VTG},
+
+  // YACHT-MASTER I
+  {id:"ym1-126622-blu",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:null,ref:"126622",mat:"Oystersteel",bezel:"Platinum",dial:"Blue",brace:"Oyster",size:"40mm",status:"current",startYear:2019,endYear:2026,desc:"Steel case with platinum bezel. The classic steel YM. Blue dial is the benchmark.",pricing:P([13000,16000,20000],[12000,14700,18500],[11000,13500,17000],[10200,12500,15800]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ym1-126622-rhodium",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:"Dark Rhodium",ref:"126622",mat:"Oystersteel",bezel:"Platinum",dial:"Dark Rhodium",brace:"Oyster",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"Dark rhodium dial — contemporary and sophisticated. Harder to find than blue.",pricing:P([14000,17500,22000],[13000,16000,20000],[12000,14800,18500],[11000,13600,17000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ym1-126622-silv",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:null,ref:"126622",mat:"Oystersteel",bezel:"Platinum",dial:"Silver",brace:"Oyster",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"Silver dial steel Yacht-Master.",pricing:P([13200,16300,20500],[12200,15000,18900],[11200,13800,17400],[10400,12800,16100]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ym1-126621-choc",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:null,ref:"126621",mat:"Rolesor Everose Gold",bezel:"Everose Gold",dial:"Chocolate",brace:"Oyster",size:"40mm",status:"current",startYear:2019,endYear:2026,desc:"Everose two-tone YM. Warm palette, sporty-luxe combination.",pricing:P([20000,25000,32000],[18500,23000,29500],[17000,21000,27000],[15500,19500,25000]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ym1-126655-blk",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:null,ref:"126655",mat:"18k Everose Gold",bezel:"Everose Gold",dial:"Black",brace:"Oysterflex",size:"40mm",status:"current",startYear:2019,endYear:2026,desc:"Full Everose gold YM on Oysterflex rubber. The sportiest luxury YM.",pricing:P([38000,47000,60000],[35000,43000,55000],[32000,39500,50000],[29000,36000,46000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"ym1-226659-blk",fid:"rolex-ym1",family:"Yacht-Master I",name:"Yacht-Master",nick:null,ref:"226659",mat:"18k White Gold",bezel:"White Gold",dial:"Black",brace:"Oysterflex",size:"42mm",status:"current",startYear:2019,endYear:2026,desc:"White gold YM 42mm on Oysterflex. Bold, sporty, luxurious.",pricing:P([45000,56000,72000],[41000,51000,66000],[37000,47000,61000],[34000,43000,56000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+
+  // YACHT-MASTER II
+  {id:"ym2-226680-blu",fid:"rolex-ym2",family:"Yacht-Master II",name:"Yacht-Master II",nick:null,ref:"226680",mat:"Oystersteel",bezel:"Rubber Regatta",dial:"Blue",brace:"Oyster",size:"44mm",status:"current",startYear:2022,endYear:2026,desc:"Steel YMII with programmable regatta timer. Bold 44mm serious sailing watch.",pricing:P([16000,19500,25000],[14800,18000,23000],[13500,16500,21000],[12500,15200,19500]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ym2-116681",fid:"rolex-ym2",family:"Yacht-Master II",name:"Yacht-Master II",nick:"Rolesor Everose",ref:"116681",mat:"Rolesor Everose Gold",bezel:"Everose Regatta",dial:"Black",brace:"Oyster",size:"44mm",status:"discontinued",startYear:2007,endYear:2022,desc:"Two-tone YMII — discontinued. Everose/steel combo with strong collector interest.",pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,28000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"ym2-116688",fid:"rolex-ym2",family:"Yacht-Master II",name:"Yacht-Master II",nick:"Yellow Gold",ref:"116688",mat:"18k Yellow Gold",bezel:"Yellow Gold Regatta",dial:"Champagne",brace:"Oyster",size:"44mm",status:"discontinued",startYear:2007,endYear:2022,desc:"Full yellow gold YMII — discontinued. The ultimate expression of the regatta complication.",pricing:P([55000,70000,90000],[50000,64000,83000],[46000,59000,77000],[42000,54000,71000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"ym2-116689",fid:"rolex-ym2",family:"Yacht-Master II",name:"Yacht-Master II",nick:"White Gold",ref:"116689",mat:"18k White Gold",bezel:"White Gold Regatta",dial:"White",brace:"Oyster",size:"44mm",status:"discontinued",startYear:2007,endYear:2022,desc:"Full white gold YMII — discontinued. Rare and elegant.",pricing:P([58000,74000,95000],[53000,68000,88000],[49000,63000,81000],[45000,58000,75000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+
+  // SEA-DWELLER
+  {id:"sd-126600",fid:"rolex-sd",family:"Sea-Dweller",name:"Sea-Dweller",nick:"50th Anniversary",ref:"126600",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"43mm",status:"current",startYear:2017,endYear:2026,desc:"50th Anniversary Sea-Dweller. 43mm, helium escape valve, 1220m water resistance. First SD with Cyclops.",pricing:P([12000,14500,18000],[11000,13300,16500],[10000,12200,15200],[9200,11200,14000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"sd-126603",fid:"rolex-sd",family:"Sea-Dweller",name:"Sea-Dweller",nick:"Gold/Steel Two-Tone",ref:"126603",mat:"Rolesor Yellow Gold",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"43mm",status:"current",startYear:2019,endYear:2026,desc:"Two-tone Sea-Dweller. The only two-tone dive watch in Rolex's current lineup.",pricing:P([22000,27000,34000],[20000,25000,31500],[18200,23000,29000],[16800,21000,27000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"sd-1665",fid:"rolex-sd",family:"Sea-Dweller",name:"Sea-Dweller",nick:"Double Red",ref:"1665",mat:"Oystersteel",bezel:"Black Aluminum",dial:"Black",brace:"Oyster",size:"40mm",status:"vintage",startYear:1967,endYear:1978,desc:"The original 'Double Red' — first Sea-Dweller with text in red. Extraordinary rarity.",vintageNote:VN_GEN,pricing:P([30000,60000,160000],[25000,52000,140000],[20000,44000,120000],[15000,35000,95000]),cM:{Unworn:1.4,Mint:1.22,Excellent:1.0,"Very Good":.80,Good:.62,Fair:.42},yM:YM_STD,src:SRC_VTG},
+
+  // DEEPSEA
+  {id:"ds-136660-blk",fid:"rolex-deepsea",family:"Deepsea",name:"Sea-Dweller Deepsea",nick:null,ref:"136660",mat:"Oystersteel",bezel:"Black Ceramic",dial:"Black",brace:"Oyster",size:"44mm",status:"current",startYear:2022,endYear:2026,desc:"Current Deepsea. 3,900m water resistance. Ringlock System. Most capable dive watch in production.",pricing:P([13500,16000,20000],[12400,14800,18500],[11400,13600,17000],[10500,12600,15800]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ds-136660-dblue",fid:"rolex-deepsea",family:"Deepsea",name:"Sea-Dweller Deepsea",nick:"D-Blue James Cameron",ref:"136660",mat:"Oystersteel",bezel:"Black Ceramic",dial:"D-Blue Ombré",brace:"Oyster",size:"44mm",status:"current",startYear:2014,endYear:2026,desc:"The 'D-Blue' — gradient blue/black dial celebrating James Cameron's Mariana Trench dive. Iconic.",pricing:P([16000,19500,25000],[14800,18000,23000],[13500,16600,21000],[12500,15400,19500]),cM:{Unworn:1.14,Mint:1.07,Excellent:1.0,"Very Good":.91,Good:.79,Fair:.64},yM:YM_STD,src:SRC_MAIN},
+
+  // OYSTER PERPETUAL
+  {id:"op-124300-blk",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:null,ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"The purist Rolex. No complications, no frills. Perfect entry point to the brand.",pricing:P([6200,7500,9500],[5700,6900,8700],[5200,6400,8100],[4800,5900,7500]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-124300-blu",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:null,ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Blue",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Blue dial OP41.",pricing:P([6400,7800,9900],[5900,7200,9100],[5400,6600,8400],[5000,6100,7800]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-124300-coral",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:null,ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Coral Red",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Vivid coral red dial — modern, bold, and commands premium over standard dials.",pricing:P([7000,8800,11500],[6400,8100,10600],[5900,7400,9700],[5400,6800,9000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-124300-turq",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:"Turquoise",ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Turquoise",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Turquoise dial — fan favorite, commands significant premium over other colors.",pricing:P([8500,11000,15000],[7800,10100,13800],[7100,9300,12700],[6500,8500,11700]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-124300-yell",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:null,ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Yellow",brace:"Oyster",size:"41mm",status:"current",startYear:2020,endYear:2026,desc:"Yellow dial — cheerful, bold, surprisingly wearable.",pricing:P([6600,8200,10500],[6100,7600,9700],[5600,7000,8900],[5200,6400,8200]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-126000-coral",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 36",nick:null,ref:"126000",mat:"Oystersteel",bezel:"Smooth",dial:"Coral Red",brace:"Oyster",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"36mm OP in coral red. For those who prefer the classic smaller size.",pricing:P([6200,7800,10000],[5700,7200,9200],[5200,6600,8500],[4800,6100,7900]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-126000-blu",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 36",nick:null,ref:"126000",mat:"Oystersteel",bezel:"Smooth",dial:"Blue",brace:"Oyster",size:"36mm",status:"current",startYear:2020,endYear:2026,desc:"36mm OP in blue.",pricing:P([5900,7300,9400],[5400,6800,8700],[5000,6300,8100],[4600,5800,7500]),cM:CM_GOLD,yM:YM_STD,src:SRC_MAIN},
+  {id:"op-124300-palm",fid:"rolex-op",family:"Oyster Perpetual",name:"Oyster Perpetual 41",nick:"Palm Boutique",ref:"124300",mat:"Oystersteel",bezel:"Smooth",dial:"Palm Green",brace:"Oyster",size:"41mm",status:"limited",startYear:2022,endYear:2022,desc:"Boutique-only Palm motif dial OP41. Exceptional rarity.",pricing:P([20000,32000,55000],[18000,29000,50000],[16000,26000,46000],[14000,24000,42000]),cM:CM_RARE,yM:YM_STD,src:["Chrono24","Phillips"]},
+
+  // MILGAUSS
+  {id:"mg-116400-blk",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:null,ref:"116400",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2007,endYear:2023,desc:"Standard Milgauss with lightning bolt seconds hand. Discontinued 2023.",pricing:P([9000,11500,15000],[8200,10500,13700],[7500,9600,12600],[6900,8900,11600]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"mg-116400-wht",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:null,ref:"116400",mat:"Oystersteel",bezel:"Smooth",dial:"White",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2007,endYear:2023,desc:"White dial Milgauss without green crystal. Discontinued 2023.",pricing:P([8500,10800,14000],[7800,9900,12900],[7100,9100,11900],[6600,8400,11000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"mg-116400gv-blk",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:"Green Glass Black",ref:"116400GV",mat:"Oystersteel",bezel:"Smooth",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2007,endYear:2023,desc:"Green crystal 'GV' version — most sought Milgauss. Unique green sapphire crystal.",pricing:P([12000,15500,20000],[11000,14200,18500],[10000,13100,17000],[9200,12000,15700]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"mg-116400gv-wht",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:"Green Glass White",ref:"116400GV",mat:"Oystersteel",bezel:"Smooth",dial:"White",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2007,endYear:2023,desc:"Green glass Milgauss with white dial. Less common than black dial.",pricing:P([11000,14000,18500],[10000,12800,17000],[9200,11800,15700],[8500,10900,14500]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"mg-zblue",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:"Z-Blue Boutique",ref:"116400GV",mat:"Oystersteel",bezel:"Smooth",dial:"Z-Blue",brace:"Oyster",size:"40mm",status:"limited",startYear:2014,endYear:2023,desc:"Z-Blue (electric blue) boutique exclusive. Most vibrant and rare Milgauss. Discontinued 2023.",pricing:P([18000,25000,38000],[16500,22500,34000],[15000,20500,31000],[13500,18500,28000]),cM:CM_RARE,yM:YM_STD,src:["Chrono24","Phillips"]},
+  {id:"mg-6541",fid:"rolex-mg",family:"Milgauss",name:"Milgauss",nick:"Original Honeycomb",ref:"6541",mat:"Oystersteel",bezel:"Honeycomb/Fixed",dial:"Black",brace:"Oyster",size:"37mm",status:"vintage",startYear:1956,endYear:1960,desc:"The original Milgauss with distinctive honeycomb bezel. Extremely rare in any condition.",vintageNote:VN_GEN,pricing:P([40000,80000,200000],[0,0,0],[0,0,0],[20000,50000,140000]),cM:{Unworn:1.5,Mint:1.3,Excellent:1.0,"Very Good":.78,Good:.58,Fair:.38},yM:YM_STD,src:SRC_VTG},
+
+  // AIR-KING
+  {id:"ak-126900",fid:"rolex-ak",family:"Air-King",name:"Air-King",nick:null,ref:"126900",mat:"Oystersteel",bezel:"Fixed",dial:"Black/Yellow Indices",brace:"Oyster",size:"40mm",status:"current",startYear:2022,endYear:2026,desc:"Tribute to aviation. Black dial with yellow/green indices. 24hr display. Caliber 3230.",pricing:P([7500,9000,11500],[6900,8300,10600],[6300,7700,9800],[5800,7100,9000]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+  {id:"ak-116900",fid:"rolex-ak",family:"Air-King",name:"Air-King",nick:"Previous Gen",ref:"116900",mat:"Oystersteel",bezel:"Fixed",dial:"Black",brace:"Oyster",size:"40mm",status:"discontinued",startYear:2016,endYear:2022,desc:"Previous generation Air-King. Discontinued 2022 when current ref launched.",pricing:P([6000,7500,9800],[5500,6900,9000],[5000,6400,8300],[4600,5900,7700]),cM:CM_STD,yM:YM_STD,src:SRC_MAIN},
+
+  // 1908
+  {id:"r1908-52508-silv",fid:"rolex-1908",family:"1908",name:"1908",nick:"White Gold Silver",ref:"52508",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"Leather",size:"39mm",status:"current",startYear:2023,endYear:2026,desc:"Rolex's new dress watch collection. Slim 39mm, Caliber 7140. A refined departure from sport watches.",pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,27500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"r1908-52508-blk",fid:"rolex-1908",family:"1908",name:"1908",nick:"White Gold Black",ref:"52508",mat:"18k White Gold",bezel:"Fluted",dial:"Black",brace:"Leather",size:"39mm",status:"current",startYear:2023,endYear:2026,desc:"Black dial 1908 in white gold.",pricing:P([22000,28000,36000],[20000,25500,33000],[18000,23500,30000],[16500,21500,27500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"r1908-52509-champ",fid:"rolex-1908",family:"1908",name:"1908",nick:"Yellow Gold Champagne",ref:"52509",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"Leather",size:"39mm",status:"current",startYear:2023,endYear:2026,desc:"Yellow gold 1908 — classic warm tone for the new dress collection.",pricing:P([28000,36000,46000],[25500,33000,42000],[23000,30000,38500],[21000,27500,35500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"r1908-52509-silv",fid:"rolex-1908",family:"1908",name:"1908",nick:"Yellow Gold Silver",ref:"52509",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Silver",brace:"Leather",size:"39mm",status:"current",startYear:2023,endYear:2026,desc:"Yellow gold 1908 with silver dial.",pricing:P([27000,35000,45000],[24500,32000,41000],[22000,29000,37500],[20000,26500,34500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+
+  // LAND-DWELLER
+  {id:"ld-128403-blu",fid:"rolex-ld",family:"Land-Dweller",name:"Land-Dweller",nick:"Steel Blue",ref:"128403",mat:"Oystersteel",bezel:"Integrated SS",dial:"Blue",brace:"Integrated SS",size:"40mm",status:"current",startYear:2025,endYear:2026,desc:"Brand new for 2025. Rolex's first integrated bracelet sport watch. Extremely limited availability.",pricing:P([25000,35000,55000],[22000,31000,50000],[19000,27000,45000],[17000,24000,40000]),cM:{Unworn:1.30,Mint:1.15,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_LAND,src:SRC_C24},
+  {id:"ld-128403-blk",fid:"rolex-ld",family:"Land-Dweller",name:"Land-Dweller",nick:"Steel Black",ref:"128403",mat:"Oystersteel",bezel:"Integrated SS",dial:"Black",brace:"Integrated SS",size:"40mm",status:"current",startYear:2025,endYear:2026,desc:"Black dial Land-Dweller. Stealthy and sophisticated.",pricing:P([24000,33000,52000],[21000,29500,47000],[18500,26000,42000],[16500,23000,38000]),cM:{Unworn:1.28,Mint:1.14,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_LAND,src:SRC_C24},
+  {id:"ld-128405-champ",fid:"rolex-ld",family:"Land-Dweller",name:"Land-Dweller",nick:"Yellow Gold Champagne",ref:"128405",mat:"18k Yellow Gold",bezel:"Integrated YG",dial:"Champagne",brace:"Integrated YG",size:"40mm",status:"current",startYear:2025,endYear:2026,desc:"Yellow gold Land-Dweller — the ultimate precious metal expression of the new family.",pricing:P([65000,90000,130000],[59000,83000,120000],[54000,76000,110000],[49000,70000,100000]),cM:{Unworn:1.30,Mint:1.15,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_LAND,src:SRC_C24},
+  {id:"ld-128405-black",fid:"rolex-ld",family:"Land-Dweller",name:"Land-Dweller",nick:"Yellow Gold Black",ref:"128405",mat:"18k Yellow Gold",bezel:"Integrated YG",dial:"Black",brace:"Integrated YG",size:"40mm",status:"current",startYear:2025,endYear:2026,desc:"Yellow gold Land-Dweller with black dial.",pricing:P([63000,87000,126000],[57000,80000,116000],[52000,74000,107000],[47000,68000,98000]),cM:{Unworn:1.28,Mint:1.14,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_LAND,src:SRC_C24},
+  {id:"ld-128404-choc",fid:"rolex-ld",family:"Land-Dweller",name:"Land-Dweller",nick:"Everose Chocolate",ref:"128404",mat:"18k Everose Gold",bezel:"Integrated RG",dial:"Chocolate",brace:"Integrated RG",size:"40mm",status:"current",startYear:2025,endYear:2026,desc:"Everose Land-Dweller with chocolate dial. Warm and distinctive.",pricing:P([60000,82000,118000],[55000,75000,108000],[50000,69000,100000],[45000,64000,92000]),cM:{Unworn:1.28,Mint:1.14,Excellent:1.0,"Very Good":.90,Good:.77,Fair:.62},yM:YM_LAND,src:SRC_C24},
+
+  // CELLINI
+  {id:"cell-50509",fid:"rolex-cellini",family:"Cellini",name:"Cellini Time",nick:"Yellow Gold Champagne",ref:"50509",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"Cellini Time in yellow gold. Discontinued 2023 when 1908 replaced the dress line.",pricing:P([12000,16000,22000],[11000,14500,20000],[10000,13300,18500],[9000,12200,17000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"cell-50505",fid:"rolex-cellini",family:"Cellini",name:"Cellini Time",nick:"White Gold Silver",ref:"50505",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"White gold Cellini Time. Elegant discontinued dress watch.",pricing:P([12000,16000,22000],[11000,14500,20000],[10000,13300,18500],[9000,12200,17000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"cell-50509-blk",fid:"rolex-cellini",family:"Cellini",name:"Cellini Time",nick:"Yellow Gold Black",ref:"50509",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Black",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"Black dial Cellini Time in yellow gold.",pricing:P([11500,15500,21000],[10500,14000,19000],[9500,12800,17500],[8700,11700,16000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"cell-50519",fid:"rolex-cellini",family:"Cellini",name:"Cellini Date",nick:"White Gold Silver",ref:"50519",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"Cellini Date — adds date function to the dress watch.",pricing:P([12500,17000,23000],[11500,15500,21000],[10500,14200,19500],[9500,13000,18000]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"cell-50525",fid:"rolex-cellini",family:"Cellini",name:"Cellini Dual Time",nick:"Yellow Gold Champagne",ref:"50525",mat:"18k Yellow Gold",bezel:"Fluted",dial:"Champagne",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"Cellini Dual Time — GMT function in a dress watch. Rare and underappreciated.",pricing:P([13500,18500,25000],[12500,17000,23000],[11500,15500,21000],[10500,14200,19500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
+  {id:"cell-50529",fid:"rolex-cellini",family:"Cellini",name:"Cellini Dual Time",nick:"White Gold Silver",ref:"50529",mat:"18k White Gold",bezel:"Fluted",dial:"Silver",brace:"Leather",size:"39mm",status:"discontinued",startYear:2014,endYear:2023,desc:"White gold Cellini Dual Time.",pricing:P([13500,18500,25000],[12500,17000,23000],[11500,15500,21000],[10500,14200,19500]),cM:CM_GOLD,yM:YM_STD,src:SRC_C24},
 ];
 
-// ── FAMILY INDEX ──────────────────────────────────────────────────────────────
+// FAMILY INDEX
 window.ROLEX_FAMILIES = {};
 window.ROLEX_WATCHES.forEach(w => {
-  if (!window.ROLEX_FAMILIES[w.fid]) {
-    window.ROLEX_FAMILIES[w.fid] = { fid: w.fid, family: w.family, ids: [] };
-  }
+  if (!window.ROLEX_FAMILIES[w.fid]) window.ROLEX_FAMILIES[w.fid] = { fid:w.fid, family:w.family, ids:[] };
   window.ROLEX_FAMILIES[w.fid].ids.push(w.id);
 });
 
-// ── PRICE CALCULATOR ──────────────────────────────────────────────────────────
-window.calcPrice = function(watch, set, condition, era) {
+// YEAR INTERPOLATION ENGINE
+window.getYearMultiplier = function(yM, year) {
+  if (!yM || !year) return 1.0;
+  const keys = Object.keys(yM).map(Number).sort((a,b)=>a-b);
+  if (year <= keys[0]) return yM[keys[0]];
+  if (year >= keys[keys.length-1]) return yM[keys[keys.length-1]];
+  for (let i=0;i<keys.length-1;i++) {
+    if (year>=keys[i] && year<=keys[i+1]) {
+      const t = (year-keys[i])/(keys[i+1]-keys[i]);
+      return yM[keys[i]] + t*(yM[keys[i+1]]-yM[keys[i]]);
+    }
+  }
+  return 1.0;
+};
+
+window.calcPrice = function(watch, set, condition, year) {
   const base = watch.pricing[set] || watch.pricing["Full Set"];
-  if (!base || !base.avg) return { low: 0, avg: 0, high: 0 };
-  const cM = watch.cM[condition] || 1;
-  const eM = era ? (watch.eM[era] || 1) : 1;
+  if (!base||!base.avg) return {low:0,avg:0,high:0};
+  const cM = watch.cM[condition] || 1.0;
+  const yMult = window.getYearMultiplier(watch.yM, year);
   return {
-    low:  Math.round(base.low  * cM * eM),
-    avg:  Math.round(base.avg  * cM * eM),
-    high: Math.round(base.high * cM * eM)
+    low:  Math.round(base.low  * cM * yMult),
+    avg:  Math.round(base.avg  * cM * yMult),
+    high: Math.round(base.high * cM * yMult)
   };
 };
 
-window.fmtPrice = function(n) {
-  if (!n || n === 0) return "POA";
-  return "$" + n.toLocaleString();
+window.fmtPrice = n => !n||n===0 ? "POA" : "$"+n.toLocaleString();
+
+window.getProductionYears = function(watch) {
+  const years=[];
+  for (let y=watch.startYear;y<=watch.endYear;y++) years.push(y);
+  return years;
 };
 
-console.log(`✅ Rolex catalog loaded: ${window.ROLEX_WATCHES.length} configurations across ${Object.keys(window.ROLEX_FAMILIES).length} families`);
+console.log(`✅ Rolex loaded: ${window.ROLEX_WATCHES.length} refs · ${Object.keys(window.ROLEX_FAMILIES).length} families · year-specific pricing active`);
