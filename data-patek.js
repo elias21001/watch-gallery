@@ -1,5 +1,6 @@
 // ============================================================
 // THE WATCH GALLERY — PATEK PHILIPPE CATALOG
+// Updated: Year-specific production ranges (startYear/endYear)
 // Pricing: Chrono24, WatchCharts, WatchGuys, Ermitage Apr 2026
 // Status: "current" | "discontinued" | "vintage" | "limited"
 // ============================================================
@@ -13,426 +14,435 @@ const PP_P = (fs, fp, fb, wo) => ({
 
 const PP_CM_STD  = { Unworn:1.12, Mint:1.06, Excellent:1.00, "Very Good":.91, Good:.79, Fair:.64 };
 const PP_CM_GOLD = { Unworn:1.09, Mint:1.04, Excellent:1.00, "Very Good":.92, Good:.81, Fair:.66 };
-const PP_CM_RARE = { Unworn:1.25, Mint:1.12, Excellent:1.00, "Very Good":.87, Good:.73, Fair:.55 };
-const PP_CM_VTG  = { Unworn:1.35, Mint:1.18, Excellent:1.00, "Very Good":.82, Good:.65, Fair:.45 };
+const PP_CM_RARE = { Unworn:1.30, Mint:1.15, Excellent:1.00, "Very Good":.85, Good:.70, Fair:.52 };
+const PP_CM_VTG  = { Unworn:1.38, Mint:1.20, Excellent:1.00, "Very Good":.80, Good:.62, Fair:.43 };
 
-const PP_EM_NAUT  = { "Pre-1960":2.0, "1960s":2.0, "1970s":2.5, "1980s":1.8, "1990s":1.3, "2000s":1.1, "2010s":.95, "2020s":1.0 };
-const PP_EM_CAL   = { "Pre-1960":2.5, "1960s":2.0, "1970s":1.5, "1980s":1.2, "1990s":1.0, "2000s":.92, "2010s":.90, "2020s":1.0 };
-const PP_EM_COMP  = { "Pre-1960":3.0, "1960s":2.5, "1970s":1.8, "1980s":1.4, "1990s":1.1, "2000s":1.0, "2010s":.95, "2020s":1.0 };
-const PP_EM_STD   = { "Pre-1960":1.5, "1960s":1.3, "1970s":1.1, "1980s":1.0, "1990s":.90, "2000s":.85, "2010s":.88, "2020s":1.0 };
+// Year-based multiplier curves
+const PP_YM_5711 = {
+  1997:1.60, 2000:1.35, 2005:1.15, 2010:1.05, 2015:1.0,
+  2019:1.05, 2020:1.30, 2021:2.80, 2022:2.20, 2023:1.80,
+  2024:1.60, 2026:1.50
+};
+const PP_YM_5811 = {
+  2021:1.40, 2022:1.60, 2023:1.45, 2024:1.30, 2026:1.25
+};
+const PP_YM_AQ = {
+  1997:1.5, 2000:1.3, 2005:1.15, 2010:1.05, 2015:1.0,
+  2019:1.0, 2021:1.45, 2022:1.30, 2023:1.15, 2024:1.08, 2026:1.05
+};
+const PP_YM_COMP = {
+  1940:4.5, 1950:3.8, 1960:3.0, 1970:2.3, 1980:1.7,
+  1990:1.3, 2000:1.1, 2010:1.0, 2020:1.0, 2026:1.0
+};
+const PP_YM_CALATRAVA = {
+  1932:5.0, 1940:4.2, 1950:3.5, 1960:2.8, 1970:2.0,
+  1980:1.5, 1990:1.2, 2000:1.05, 2010:1.0, 2020:1.0, 2026:1.0
+};
+const PP_YM_STD = {
+  1950:2.5, 1960:2.0, 1970:1.6, 1980:1.3, 1990:1.1,
+  2000:1.0, 2010:0.97, 2020:1.0, 2026:1.0
+};
+const PP_YM_WORLD_TIME = {
+  1940:5.0, 1950:4.2, 1960:3.4, 1970:2.6, 1980:1.9,
+  1990:1.4, 2000:1.1, 2010:1.0, 2020:1.0, 2026:1.0
+};
 
 const PP_SRC_MAIN = ["Chrono24","WatchGuys","Ermitage 2026"];
 const PP_SRC_C24  = ["Chrono24","WatchCharts"];
 const PP_SRC_VTG  = ["Phillips","Christie's","Sotheby's"];
-const PP_SRC_TOP  = ["Phillips","Christie's","Sotheby's","Chrono24"];
+const PP_SRC_AUC  = ["Phillips","Sotheby's","Christie's","Antiquorum"];
 
-window.PP_WATCHES = [
+const PP_VN_5711  = "The Nautilus 5711 in steel (particularly the Blue 5711/1A) is considered the watch that defined the 2020–2022 watch bubble. Production ended January 2021. 2020 and early 2021 examples — the last off the line — command the highest premiums. A factory-sealed unworn example with original stickers can trade at 3x the price of a well-worn example.";
+const PP_VN_COMP  = "Patek Philippe grand complications from the mid-20th century are among the most valuable wristwatches ever made. Condition is paramount — original dials, untampered movements, and full documentation can increase value by multiples. Any example with auction provenance at a major house is worth significantly more.";
+const PP_VN_CAL   = "The Calatrava represents the purest expression of dress watchmaking. Early references from the 1930s–1960s are the most coveted. The 96 (1932) and 570 (1944) are icons. Dial originality — no refinishing, no reluming — is the single most important value factor for vintage Calatrava.";
+const PP_VN_GEN   = "Earlier Patek Philippe references command premiums based on rarity, dial condition, and collector demand. Original dials are sacrosanct — a refinished dial can reduce value by 50–80%. Full documentation dramatically increases value. Any auction provenance adds meaningful premium.";
+const PP_VN_WT    = "Patek World Time references from the Czapek era (ref 515, 1939) are among the most historically significant watches ever made. Louis Cottier's world time mechanism in a round case is the definitive achievement. Even heavily worn examples are museum-quality.";
 
-  // ── NAUTILUS 5711 (DISCONTINUED) ────────────────────────────────────────────
-  { id:"naut-5711-blu", fid:"pp-nautilus", brand:"Patek Philippe", family:"Nautilus 5711",
-    name:"Nautilus", nick:"5711 Blue", ref:"5711/1A-010",
+window.PATEK_WATCHES = [
+
+  // ── NAUTILUS 5711 (STEEL, DISCONTINUED) ─────────────────────────────────────
+  { id:"pp-5711-blue", fid:"pp-nautilus-5711", family:"Nautilus 5711",
+    name:"Nautilus", nick:"5711 Blue — The Icon", ref:"5711/1A-010",
     mat:"Stainless Steel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"40mm",
-    status:"discontinued", era:"2006–2021",
-    desc:"The most important discontinued watch of the modern era. Discontinued January 2021. Caused a global frenzy — retail was ~$35K, immediately traded at $150K+. The blue dial is the definitive Nautilus.",
-    pricing:PP_P([130000,165000,220000],[120000,152000,203000],[110000,140000,188000],[100000,130000,174000]),
-    cM:{ Unworn:1.30, Mint:1.15, Excellent:1.0, "Very Good":.88, Good:.75, Fair:.60 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
+    status:"discontinued", startYear:2006, endYear:2021,
+    desc:"The most iconic watch of the 21st century. Discontinued January 2021. The blue dial 5711/1A is the watch that defined a generation of collectors. 2019–2021 examples command the highest premiums.",
+    vintageNote: PP_VN_5711,
+    pricing:PP_P([150000,200000,280000],[135000,182000,255000],[120000,165000,232000],[108000,150000,210000]),
+    cM:PP_CM_RARE, yM:PP_YM_5711, src:PP_SRC_MAIN },
 
-  { id:"naut-5711-olive", fid:"pp-nautilus", brand:"Patek Philippe", family:"Nautilus 5711",
-    name:"Nautilus", nick:"5711 Olive Green", ref:"5711/1A-014",
+  { id:"pp-5711-black", fid:"pp-nautilus-5711", family:"Nautilus 5711",
+    name:"Nautilus", nick:"5711 Black", ref:"5711/1A-011",
+    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Black", brace:"Integrated SS", size:"40mm",
+    status:"discontinued", startYear:2012, endYear:2021,
+    desc:"Black dial 5711 — rarer than blue, slightly lower demand but deeply collectible.",
+    vintageNote: PP_VN_5711,
+    pricing:PP_P([130000,175000,240000],[118000,159000,219000],[107000,144000,199000],[97000,131000,181000]),
+    cM:PP_CM_RARE, yM:PP_YM_5711, src:PP_SRC_MAIN },
+
+  { id:"pp-5711-silver", fid:"pp-nautilus-5711", family:"Nautilus 5711",
+    name:"Nautilus", nick:"5711 Silver", ref:"5711/1A-001",
+    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Silver", brace:"Integrated SS", size:"40mm",
+    status:"discontinued", startYear:1998, endYear:2021,
+    desc:"Silver dial 5711 — the original configuration. Earlier examples from the late 1990s and 2000s have particular collector appeal.",
+    vintageNote: PP_VN_5711,
+    pricing:PP_P([120000,165000,225000],[109000,150000,205000],[99000,136000,186000],[90000,124000,169000]),
+    cM:PP_CM_RARE, yM:PP_YM_5711, src:PP_SRC_MAIN },
+
+  { id:"pp-5711-olive", fid:"pp-nautilus-5711", family:"Nautilus 5711",
+    name:"Nautilus", nick:"5711 Olive Green — Final Edition", ref:"5711/1A-014",
     mat:"Stainless Steel", bezel:"Integrated SS", dial:"Olive Green", brace:"Integrated SS", size:"40mm",
-    status:"discontinued", era:"2021",
-    desc:"The final 5711 — olive green dial released as a farewell edition. Produced in extremely limited numbers for 2021 only. Immediately traded at $300K+. The most valuable standard steel sports watch ever made.",
-    pricing:PP_P([280000,360000,500000],[260000,335000,465000],[240000,312000,432000],[220000,290000,400000]),
-    cM:{ Unworn:1.40, Mint:1.20, Excellent:1.0, "Very Good":.85, Good:.70, Fair:.55 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-5711-white", fid:"pp-nautilus", brand:"Patek Philippe", family:"Nautilus 5711",
-    name:"Nautilus", nick:"5711 White Dial", ref:"5711/1A-011",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"White", brace:"Integrated SS", size:"40mm",
-    status:"discontinued", era:"2009–2021",
-    desc:"White dial 5711 — produced in smaller numbers than blue, commands significant premium.",
-    pricing:PP_P([155000,200000,270000],[143000,185000,250000],[132000,172000,232000],[122000,160000,215000]),
-    cM:{ Unworn:1.28, Mint:1.13, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.60 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-5711-tiffany", fid:"pp-nautilus", brand:"Patek Philippe", family:"Nautilus 5711",
-    name:"Nautilus", nick:"5711 Tiffany Blue", ref:"5711/1A-018",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Tiffany Blue", brace:"Integrated SS", size:"40mm",
-    status:"limited", era:"2021",
-    desc:"The Tiffany & Co. 170th anniversary collaboration — 170 pieces. Sold at Phillips for $6.5M. The most valuable wristwatch ever sold at auction at time of sale. Unicorn.",
-    pricing:PP_P([5000000,7000000,12000000],[0,0,0],[0,0,0],[4000000,6000000,10000000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:["Phillips","Christie's"] },
-
-  { id:"naut-5711-yg", fid:"pp-nautilus", brand:"Patek Philippe", family:"Nautilus 5711",
-    name:"Nautilus", nick:"5711 Yellow Gold", ref:"5711/1R-001",
-    mat:"18k Rose Gold", bezel:"Integrated RG", dial:"Brown", brace:"Integrated RG", size:"40mm",
-    status:"discontinued", era:"2006–2021",
-    desc:"Rose gold 5711 with brown dial. Discontinued alongside steel. Rare and commanding premium.",
-    pricing:PP_P([85000,115000,160000],[78000,106000,148000],[72000,98000,137000],[67000,91000,127000]),
-    cM:PP_CM_GOLD, eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  // ── NAUTILUS 5726 ANNUAL CALENDAR ───────────────────────────────────────────
-  { id:"naut-5726-blu", fid:"pp-naut5726", brand:"Patek Philippe", family:"Nautilus 5726",
-    name:"Nautilus Annual Calendar", nick:"5726 Blue", ref:"5726/1A-014",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"40.5mm",
-    status:"discontinued", era:"2011–2021",
-    desc:"Annual calendar Nautilus in steel — discontinued 2021 alongside the 5711. Combines Patek's annual calendar with the iconic Nautilus form.",
-    pricing:PP_P([75000,100000,140000],[69000,93000,130000],[63000,86000,121000],[58000,80000,113000]),
-    cM:{ Unworn:1.22, Mint:1.11, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.58 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-5726-wht", fid:"pp-naut5726", brand:"Patek Philippe", family:"Nautilus 5726",
-    name:"Nautilus Annual Calendar", nick:"5726 White/Blue Moon", ref:"5726/1A-010",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Silver/Blue Moon", brace:"Integrated SS", size:"40.5mm",
-    status:"discontinued", era:"2006–2021",
-    desc:"The 5726A with moonphase and annual calendar. Extremely rare in steel. Discontinued 2021.",
-    pricing:PP_P([80000,108000,150000],[74000,100000,139000],[68000,93000,129000],[63000,87000,120000]),
-    cM:{ Unworn:1.22, Mint:1.11, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.58 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-5726-rg", fid:"pp-naut5726", brand:"Patek Philippe", family:"Nautilus 5726",
-    name:"Nautilus Annual Calendar", nick:"5726 Rose Gold", ref:"5726/1R-014",
-    mat:"18k Rose Gold", bezel:"Integrated RG", dial:"Chocolate", brace:"Integrated RG", size:"40.5mm",
-    status:"discontinued", era:"2011–2021",
-    desc:"Rose gold annual calendar Nautilus with chocolate dial. Discontinued and highly sought.",
-    pricing:PP_P([95000,130000,180000],[88000,121000,167000],[81000,113000,155000],[75000,105000,144000]),
-    cM:PP_CM_GOLD, eM:PP_EM_NAUT, src:PP_SRC_TOP },
+    status:"limited", startYear:2021, endYear:2021,
+    desc:"The final 5711 — released as a farewell. Tiffany blue also exists but olive green is the public final edition. Instant icon, extraordinary premiums.",
+    vintageNote: PP_VN_5711,
+    pricing:PP_P([320000,450000,700000],[290000,410000,640000],[262000,373000,582000],[238000,340000,530000]),
+    cM:PP_CM_RARE, yM:{2021:1.0,2026:1.0}, src:["Chrono24","Phillips","WatchCharts"] },
 
   // ── NAUTILUS 5811 (CURRENT) ──────────────────────────────────────────────────
-  { id:"naut-5811-blu", fid:"pp-naut5811", brand:"Patek Philippe", family:"Nautilus 5811",
+  { id:"pp-5811-blue", fid:"pp-nautilus-5811", family:"Nautilus 5811",
     name:"Nautilus", nick:"5811 Blue", ref:"5811/1G-001",
     mat:"18k White Gold", bezel:"Integrated WG", dial:"Blue", brace:"Integrated WG", size:"41mm",
-    status:"current", era:"2021–Present",
-    desc:"The successor to the 5711 — white gold body with new horizontal embossed dial. Launched 2021. The current flagship Nautilus. Retail ~$65K, trades at significant premium.",
-    pricing:PP_P([140000,185000,250000],[129000,171000,231000],[119000,158000,214000],[110000,147000,199000]),
-    cM:{ Unworn:1.25, Mint:1.12, Excellent:1.0, "Very Good":.88, Good:.74, Fair:.58 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
+    status:"current", startYear:2021, endYear:2026,
+    desc:"The 5711's successor — white gold only, 41mm. Caliber 26-330 S C. More precious than its predecessor but still highly sought.",
+    pricing:PP_P([120000,160000,220000],[109000,146000,201000],[99000,133000,183000],[90000,121000,167000]),
+    cM:PP_CM_GOLD, yM:PP_YM_5811, src:PP_SRC_MAIN },
 
-  { id:"naut-5811-grn", fid:"pp-naut5811", brand:"Patek Philippe", family:"Nautilus 5811",
-    name:"Nautilus", nick:"5811 Green", ref:"5811/1G-001",
+  { id:"pp-5811-brown", fid:"pp-nautilus-5811", family:"Nautilus 5811",
+    name:"Nautilus", nick:"5811 Brown", ref:"5811/1G-010",
+    mat:"18k White Gold", bezel:"Integrated WG", dial:"Brown", brace:"Integrated WG", size:"41mm",
+    status:"current", startYear:2023, endYear:2026,
+    desc:"Brown (chocolate) dial 5811. Introduced 2023, rapidly gaining collector traction.",
+    pricing:PP_P([110000,148000,205000],[100000,135000,187000],[91000,123000,170000],[83000,112000,155000]),
+    cM:PP_CM_GOLD, yM:PP_YM_5811, src:PP_SRC_MAIN },
+
+  { id:"pp-5811-green", fid:"pp-nautilus-5811", family:"Nautilus 5811",
+    name:"Nautilus", nick:"5811 Green", ref:"5811/1G-013",
     mat:"18k White Gold", bezel:"Integrated WG", dial:"Green", brace:"Integrated WG", size:"41mm",
-    status:"limited", era:"2022",
-    desc:"Green dial 5811 — one of the most sought-after current Patek configurations. Boutique limited release.",
-    pricing:PP_P([200000,270000,380000],[185000,250000,352000],[171000,232000,326000],[158000,216000,302000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:PP_SRC_TOP },
+    status:"current", startYear:2023, endYear:2026,
+    desc:"Green dial 5811 in white gold. Introduced 2023.",
+    pricing:PP_P([115000,155000,215000],[105000,141000,196000],[95000,128000,179000],[87000,117000,163000]),
+    cM:PP_CM_GOLD, yM:PP_YM_5811, src:PP_SRC_MAIN },
 
-  // ── NAUTILUS 5980 CHRONOGRAPH ────────────────────────────────────────────────
-  { id:"naut-5980-blu", fid:"pp-naut5980", brand:"Patek Philippe", family:"Nautilus 5980 Chronograph",
-    name:"Nautilus Chronograph", nick:"5980 Blue", ref:"5980/1A-001",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"40.5mm",
-    status:"discontinued", era:"2006–2021",
-    desc:"Nautilus Chronograph in steel — discontinued 2021. The most complicated Nautilus in a sport package. Extremely rare.",
-    pricing:PP_P([130000,175000,240000],[120000,162000,222000],[111000,150000,206000],[103000,140000,192000]),
-    cM:{ Unworn:1.25, Mint:1.12, Excellent:1.0, "Very Good":.87, Good:.73, Fair:.57 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
+  // ── AQUANAUT 5168 (CURRENT) ──────────────────────────────────────────────────
+  { id:"pp-5168-khaki", fid:"pp-aquanaut", family:"Aquanaut",
+    name:"Aquanaut", nick:"5168 Khaki Green", ref:"5168G-010",
+    mat:"18k White Gold", bezel:"Integrated WG", dial:"Khaki Green", brace:"Rubber", size:"42mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"The Aquanaut in white gold with khaki rubber strap. 5168G in khaki is the most desirable Aquanaut configuration.",
+    pricing:PP_P([95000,130000,180000],[86000,118000,164000],[78000,107000,149000],[71000,97000,136000]),
+    cM:PP_CM_GOLD, yM:PP_YM_AQ, src:PP_SRC_MAIN },
 
-  { id:"naut-5980-wht", fid:"pp-naut5980", brand:"Patek Philippe", family:"Nautilus 5980 Chronograph",
-    name:"Nautilus Chronograph", nick:"5980 White", ref:"5980/1A-014",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"White", brace:"Integrated SS", size:"40.5mm",
-    status:"discontinued", era:"2014–2021",
-    desc:"White dial Nautilus Chronograph — produced in very limited numbers. Extraordinary rarity.",
-    pricing:PP_P([160000,215000,295000],[148000,199000,273000],[137000,185000,253000],[127000,172000,235000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:PP_SRC_TOP },
+  { id:"pp-5168-blue", fid:"pp-aquanaut", family:"Aquanaut",
+    name:"Aquanaut", nick:"5168 Blue", ref:"5168G-001",
+    mat:"18k White Gold", bezel:"Integrated WG", dial:"Blue", brace:"Rubber", size:"42mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Blue dial Aquanaut in white gold. The second most popular Aquanaut configuration.",
+    pricing:PP_P([90000,122000,168000],[82000,111000,153000],[74000,101000,139000],[68000,92000,127000]),
+    cM:PP_CM_GOLD, yM:PP_YM_AQ, src:PP_SRC_MAIN },
 
-  { id:"naut-5980-rg", fid:"pp-naut5980", brand:"Patek Philippe", family:"Nautilus 5980 Chronograph",
-    name:"Nautilus Chronograph", nick:"5980 Rose Gold", ref:"5980/1R-001",
-    mat:"18k Rose Gold", bezel:"Integrated RG", dial:"Brown", brace:"Integrated RG", size:"40.5mm",
-    status:"discontinued", era:"2008–2021",
-    desc:"Rose gold Nautilus Chronograph. Discontinued 2021. Museum-quality rarity.",
-    pricing:PP_P([175000,235000,320000],[162000,218000,297000],[150000,203000,276000],[140000,189000,257000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:PP_SRC_TOP },
+  { id:"pp-5168-orange", fid:"pp-aquanaut", family:"Aquanaut",
+    name:"Aquanaut", nick:"5168 Orange", ref:"5168G-010",
+    mat:"18k White Gold", bezel:"Integrated WG", dial:"Orange", brace:"Rubber", size:"42mm",
+    status:"current", startYear:2022, endYear:2026,
+    desc:"Orange dial Aquanaut — vibrant and sporty. Introduced 2022, building a strong following.",
+    pricing:PP_P([85000,115000,158000],[77000,105000,144000],[70000,95000,131000],[64000,87000,120000]),
+    cM:PP_CM_GOLD, yM:PP_YM_AQ, src:PP_SRC_MAIN },
 
-  // ── NAUTILUS 5990 TRAVEL TIME CHRONOGRAPH ───────────────────────────────────
-  { id:"naut-5990-blu", fid:"pp-naut5990", brand:"Patek Philippe", family:"Nautilus 5990 Travel Time",
-    name:"Nautilus Travel Time Chronograph", nick:"5990 Blue", ref:"5990/1A-001",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"40.5mm",
-    status:"discontinued", era:"2014–2021",
-    desc:"Nautilus Travel Time Chronograph — dual time zone and chronograph in Nautilus form. Discontinued 2021.",
-    pricing:PP_P([110000,150000,205000],[102000,139000,190000],[94000,129000,177000],[87000,120000,165000]),
-    cM:{ Unworn:1.22, Mint:1.11, Excellent:1.0, "Very Good":.87, Good:.73, Fair:.57 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
+  // ── AQUANAUT 5065 (DISCONTINUED) ─────────────────────────────────────────────
+  { id:"pp-5065-blk", fid:"pp-aquanaut", family:"Aquanaut",
+    name:"Aquanaut", nick:"5065 First Generation", ref:"5065A",
+    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Black", brace:"Rubber", size:"38mm",
+    status:"discontinued", startYear:1997, endYear:2007,
+    desc:"The original Aquanaut in steel — 38mm, first generation. Neo-vintage appeal, more affordable entry to the family.",
+    pricing:PP_P([28000,38000,52000],[25000,34000,47000],[22000,31000,43000],[20000,28000,39000]),
+    cM:PP_CM_STD, yM:PP_YM_AQ, src:PP_SRC_MAIN },
 
-  // ── NAUTILUS 7118 LADIES ─────────────────────────────────────────────────────
-  { id:"naut-7118-blu", fid:"pp-naut7118", brand:"Patek Philippe", family:"Nautilus 7118 Ladies",
-    name:"Nautilus Ladies", nick:"7118 Blue", ref:"7118/1A-001",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Blue", brace:"Integrated SS", size:"35mm",
-    status:"discontinued", era:"2018–2021",
-    desc:"Ladies 35mm Nautilus in steel — discontinued 2021 alongside 5711. Commands extraordinary premium.",
-    pricing:PP_P([75000,100000,140000],[69000,93000,130000],[63000,86000,121000],[58000,80000,113000]),
-    cM:{ Unworn:1.25, Mint:1.12, Excellent:1.0, "Very Good":.87, Good:.73, Fair:.57 },
-    eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-7118-olive", fid:"pp-naut7118", brand:"Patek Philippe", family:"Nautilus 7118 Ladies",
-    name:"Nautilus Ladies", nick:"7118 Olive Green", ref:"7118/1A-014",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Olive Green", brace:"Integrated SS", size:"35mm",
-    status:"discontinued", era:"2021",
-    desc:"Olive green ladies 7118 — released as a farewell alongside the 5711 olive. Exceptionally rare.",
-    pricing:PP_P([130000,175000,240000],[120000,162000,222000],[111000,150000,206000],[103000,140000,192000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"naut-7118-rg-pink", fid:"pp-naut7118", brand:"Patek Philippe", family:"Nautilus 7118 Ladies",
-    name:"Nautilus Ladies", nick:"7118 Rose Gold Pink", ref:"7118/1R-010",
-    mat:"18k Rose Gold", bezel:"Integrated RG", dial:"Pink", brace:"Integrated RG", size:"35mm",
-    status:"current", era:"2018–Present",
-    desc:"Rose gold ladies Nautilus with pink dial — currently produced. The only steel-equivalent Nautilus still in production for ladies.",
-    pricing:PP_P([52000,68000,90000],[48000,63000,84000],[44000,58000,78000],[40000,54000,72000]),
-    cM:PP_CM_GOLD, eM:PP_EM_NAUT, src:PP_SRC_C24 },
-
-  { id:"naut-7118-wg-dia", fid:"pp-naut7118", brand:"Patek Philippe", family:"Nautilus 7118 Ladies",
-    name:"Nautilus Ladies", nick:"7118 White Gold Diamond", ref:"7118/1200G-010",
-    mat:"18k White Gold", bezel:"Diamond-Set", dial:"Blue Diamond", brace:"Integrated WG", size:"35mm",
-    status:"current", era:"2022–Present",
-    desc:"Diamond-set ladies Nautilus in white gold. Factory diamond bezel and dial.",
-    pricing:PP_P([95000,130000,180000],[88000,121000,167000],[81000,113000,155000],[75000,105000,144000]),
-    cM:PP_CM_GOLD, eM:PP_EM_NAUT, src:PP_SRC_C24 },
-
-  // ── AQUANAUT 5167 ────────────────────────────────────────────────────────────
-  { id:"aq-5167-blk", fid:"pp-aquanaut", brand:"Patek Philippe", family:"Aquanaut 5167",
-    name:"Aquanaut", nick:"5167 Black", ref:"5167A-001",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Black", brace:"Rubber Composite", size:"40mm",
-    status:"current", era:"2010–Present",
-    desc:"The sportier, more casual Patek. Black embossed dial, rubber composite bracelet. Caliber 324 S C. Trades well above retail.",
-    pricing:PP_P([32000,42000,57000],[29000,39000,53000],[26000,36000,49000],[24000,33000,45000]),
-    cM:PP_CM_STD, eM:PP_EM_NAUT, src:PP_SRC_MAIN },
-
-  { id:"aq-5167-kha", fid:"pp-aquanaut", brand:"Patek Philippe", family:"Aquanaut 5167",
-    name:"Aquanaut", nick:"5167 Khaki", ref:"5167A-002",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Khaki Green", brace:"Rubber Composite", size:"40mm",
-    status:"current", era:"2010–Present",
-    desc:"Khaki green dial Aquanaut — uniquely casual and outdoorsy for Patek. Commands premium over black.",
-    pricing:PP_P([38000,50000,68000],[35000,46000,63000],[32000,43000,58000],[29000,40000,54000]),
-    cM:PP_CM_STD, eM:PP_EM_NAUT, src:PP_SRC_MAIN },
-
-  { id:"aq-5168-grn", fid:"pp-aquanaut", brand:"Patek Philippe", family:"Aquanaut 5167",
-    name:"Aquanaut", nick:"5168 Green", ref:"5168G-010",
-    mat:"18k White Gold", bezel:"Integrated WG", dial:"Green", brace:"Rubber Composite", size:"42mm",
-    status:"discontinued", era:"2019–2022",
-    desc:"Green dial Aquanaut 5168 in white gold — discontinued 2022. One of the most sought-after Aquanaut configurations.",
-    pricing:PP_P([95000,130000,180000],[88000,121000,167000],[81000,113000,155000],[75000,105000,144000]),
-    cM:PP_CM_RARE, eM:PP_EM_NAUT, src:PP_SRC_TOP },
-
-  { id:"aq-5164-tt", fid:"pp-aquanaut", brand:"Patek Philippe", family:"Aquanaut 5167",
-    name:"Aquanaut Travel Time", nick:"5164 Travel Time", ref:"5164A-001",
-    mat:"Stainless Steel", bezel:"Integrated SS", dial:"Black", brace:"Rubber Composite", size:"40.8mm",
-    status:"discontinued", era:"2014–2021",
-    desc:"Aquanaut Travel Time — dual time zone with day/night indicators. Discontinued.",
-    pricing:PP_P([45000,60000,80000],[41000,55000,74000],[38000,51000,69000],[35000,47000,64000]),
-    cM:PP_CM_STD, eM:PP_EM_NAUT, src:PP_SRC_C24 },
-
-  // ── CALATRAVA ────────────────────────────────────────────────────────────────
-  { id:"cal-6119-wg", fid:"pp-calatrava", brand:"Patek Philippe", family:"Calatrava",
-    name:"Calatrava", nick:"6119 White Gold", ref:"6119G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"White", brace:"Leather", size:"39mm",
-    status:"current", era:"2019–Present",
-    desc:"The modern Calatrava — Patek's purist dress watch. Caliber 30-255. Slim, elegant, timeless.",
-    pricing:PP_P([28000,36000,48000],[25500,33000,44000],[23000,30000,40000],[21000,27500,37000]),
-    cM:PP_CM_GOLD, eM:PP_EM_STD, src:PP_SRC_C24 },
-
-  { id:"cal-6119-yg", fid:"pp-calatrava", brand:"Patek Philippe", family:"Calatrava",
-    name:"Calatrava", nick:"6119 Yellow Gold", ref:"6119J-010",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Cream", brace:"Leather", size:"39mm",
-    status:"current", era:"2019–Present",
-    desc:"Yellow gold Calatrava with cream dial. Classic warm Patek elegance.",
+  // ── CALATRAVA (CURRENT) ───────────────────────────────────────────────────────
+  { id:"pp-6119-blk", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"6119 Rose Gold Black", ref:"6119R-010",
+    mat:"18k Rose Gold", bezel:"Fluted", dial:"Black", brace:"Leather", size:"40mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"The modern Calatrava. Caliber 30-255 PS. Rose gold with black dial — understated horological perfection.",
     pricing:PP_P([32000,42000,56000],[29000,38000,51000],[26000,35000,47000],[24000,32000,43000]),
-    cM:PP_CM_GOLD, eM:PP_EM_STD, src:PP_SRC_C24 },
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"cal-6119-rg", fid:"pp-calatrava", brand:"Patek Philippe", family:"Calatrava",
-    name:"Calatrava", nick:"6119 Rose Gold", ref:"6119R-010",
-    mat:"18k Rose Gold", bezel:"Rose Gold", dial:"Brown", brace:"Leather", size:"39mm",
-    status:"current", era:"2019–Present",
-    desc:"Rose gold Calatrava with brown dial. Warm and modern.",
-    pricing:PP_P([33000,43000,58000],[30000,39000,53000],[27000,36000,49000],[25000,33000,45000]),
-    cM:PP_CM_GOLD, eM:PP_EM_STD, src:PP_SRC_C24 },
+  { id:"pp-6119-slv", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"6119 Rose Gold Silver", ref:"6119R-001",
+    mat:"18k Rose Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"40mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"Silver dial Calatrava in rose gold. The classic and most restrained presentation.",
+    pricing:PP_P([30000,40000,54000],[27000,36000,49000],[25000,33000,45000],[22000,30000,41000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"cal-96-vintage", fid:"pp-calatrava", brand:"Patek Philippe", family:"Calatrava",
-    name:"Calatrava", nick:"Ref. 96 — First Calatrava", ref:"96",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Champagne", brace:"Leather", size:"31mm",
-    status:"vintage", era:"1932–1970",
-    desc:"The original 1932 Calatrava — the watch that defined Patek Philippe's identity. The most important dress watch in horological history.",
-    pricing:PP_P([30000,65000,200000],[0,0,0],[0,0,0],[22000,50000,160000]),
-    cM:PP_CM_VTG, eM:{ "Pre-1960":1.6,"1960s":1.3,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:PP_SRC_VTG },
+  { id:"pp-6119-wg-slv", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"6119 White Gold Silver", ref:"6119G-001",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Silver", brace:"Leather", size:"40mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"White gold Calatrava with silver dial. Cool-toned and refined.",
+    pricing:PP_P([31000,41000,55000],[28000,37000,50000],[26000,34000,46000],[23000,31000,42000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  // ── ANNUAL CALENDAR 5396 / 5205 ─────────────────────────────────────────────
-  { id:"ac-5396-wg", fid:"pp-annual", brand:"Patek Philippe", family:"Annual Calendar",
-    name:"Annual Calendar", nick:"5396 White Gold", ref:"5396G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver", brace:"Leather", size:"38.5mm",
-    status:"current", era:"2006–Present",
-    desc:"The dress annual calendar — Patek's own complication requiring only one date correction per year. Caliber 324 S QA LU 24H. The reference for annual calendars.",
-    pricing:PP_P([52000,68000,90000],[48000,63000,84000],[44000,58000,78000],[40000,54000,72000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  { id:"pp-5196-yg", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"5196 Yellow Gold", ref:"5196J-001",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"37mm",
+    status:"discontinued", startYear:2004, endYear:2021,
+    desc:"The 37mm Calatrava — smaller, more delicate. Yellow gold with hobnail bezel. Discontinued.",
+    pricing:PP_P([24000,32000,44000],[22000,29000,40000],[20000,26000,37000],[18000,24000,34000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"ac-5396-yg", fid:"pp-annual", brand:"Patek Philippe", family:"Annual Calendar",
-    name:"Annual Calendar", nick:"5396 Yellow Gold", ref:"5396J-010",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Cream", brace:"Leather", size:"38.5mm",
-    status:"current", era:"2006–Present",
-    desc:"Yellow gold annual calendar — classic and warm. One of Patek's most elegant complications.",
-    pricing:PP_P([55000,72000,95000],[51000,67000,88000],[47000,62000,82000],[43000,57000,76000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  // ── CALATRAVA VINTAGE ─────────────────────────────────────────────────────────
+  { id:"pp-cal-96", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"Ref 96 — Original Calatrava", ref:"96",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"31mm",
+    status:"vintage", startYear:1932, endYear:1969,
+    desc:"The original Calatrava — created in 1932, the first year of Patek Philippe's independence. The most historically significant round dress watch ever made.",
+    vintageNote: PP_VN_CAL,
+    pricing:PP_P([55000,95000,220000],[50000,86000,200000],[0,0,0],[40000,70000,170000]),
+    cM:PP_CM_VTG, yM:PP_YM_CALATRAVA, src:PP_SRC_VTG },
 
-  { id:"ac-5205-wg", fid:"pp-annual", brand:"Patek Philippe", family:"Annual Calendar",
-    name:"Annual Calendar", nick:"5205 White Gold Moon", ref:"5205G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver/Blue Moon", brace:"Leather", size:"40mm",
-    status:"current", era:"2010–Present",
-    desc:"Annual calendar with moonphase display. More contemporary case than the 5396.",
-    pricing:PP_P([60000,78000,103000],[55000,72000,96000],[51000,67000,89000],[47000,62000,83000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  { id:"pp-cal-570", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"Ref 570 — Classic Era", ref:"570",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"35mm",
+    status:"vintage", startYear:1944, endYear:1968,
+    desc:"The 570 — most desirable post-war Calatrava. Sector and stepped dials command the highest premiums.",
+    vintageNote: PP_VN_CAL,
+    pricing:PP_P([30000,55000,130000],[27000,50000,118000],[0,0,0],[22000,40000,98000]),
+    cM:PP_CM_VTG, yM:PP_YM_CALATRAVA, src:PP_SRC_VTG },
 
-  // ── PERPETUAL CALENDAR 5140 / 5327 ──────────────────────────────────────────
-  { id:"pc-5140-wg", fid:"pp-perpetual", brand:"Patek Philippe", family:"Perpetual Calendar",
-    name:"Perpetual Calendar", nick:"5140 White Gold", ref:"5140G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver", brace:"Leather", size:"37.2mm",
-    status:"discontinued", era:"2000–2021",
-    desc:"The classic perpetual calendar in white gold. Discontinued 2021. Caliber 240 Q.",
-    pricing:PP_P([65000,88000,120000],[60000,82000,111000],[55000,76000,103000],[51000,70000,96000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  { id:"pp-cal-2526", fid:"pp-calatrava", family:"Calatrava",
+    name:"Calatrava", nick:"Ref 2526 — First Automatic", ref:"2526",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Enamel", brace:"Leather", size:"36mm",
+    status:"vintage", startYear:1953, endYear:1966,
+    desc:"Patek's first automatic — ref 2526. Enamel dial examples are extraordinarily rare. Milestone reference.",
+    vintageNote: PP_VN_CAL,
+    pricing:PP_P([45000,80000,200000],[40000,72000,182000],[0,0,0],[32000,58000,150000]),
+    cM:PP_CM_VTG, yM:PP_YM_CALATRAVA, src:PP_SRC_VTG },
 
-  { id:"pc-5327-wg", fid:"pp-perpetual", brand:"Patek Philippe", family:"Perpetual Calendar",
-    name:"Perpetual Calendar", nick:"5327 White Gold", ref:"5327G-001",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver", brace:"Leather", size:"38mm",
-    status:"current", era:"2012–Present",
-    desc:"Current perpetual calendar with clous-de-Paris guilloché dial. Caliber 324 S Q.",
-    pricing:PP_P([75000,100000,135000],[69000,93000,125000],[64000,86000,116000],[59000,80000,108000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  // ── GRAND COMPLICATIONS ───────────────────────────────────────────────────────
+  { id:"pp-5270-blk", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"5270 Perpetual Chrono — Black", ref:"5270G-014",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Black", brace:"Leather", size:"41mm",
+    status:"current", startYear:2020, endYear:2026,
+    desc:"The 5270 perpetual calendar chronograph — the pinnacle of traditional watchmaking. Caliber CH 29-535 PS Q. A life's watch.",
+    pricing:PP_P([180000,240000,320000],[164000,219000,292000],[149000,199000,266000],[136000,182000,243000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"pc-5327-yg", fid:"pp-perpetual", brand:"Patek Philippe", family:"Perpetual Calendar",
-    name:"Perpetual Calendar", nick:"5327 Yellow Gold", ref:"5327J-001",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Cream", brace:"Leather", size:"38mm",
-    status:"current", era:"2012–Present",
-    desc:"Yellow gold perpetual calendar — warm, classic, and deeply distinguished.",
-    pricing:PP_P([80000,106000,143000],[74000,98000,133000],[68000,91000,123000],[63000,85000,114000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  { id:"pp-5270-blue", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"5270 Perpetual Chrono — Blue", ref:"5270G-018",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Blue", brace:"Leather", size:"41mm",
+    status:"current", startYear:2022, endYear:2026,
+    desc:"Blue dial 5270 — introduced 2022. The most desirable current configuration.",
+    pricing:PP_P([200000,270000,360000],[182000,246000,328000],[166000,224000,299000],[151000,204000,273000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"pc-5327-rg", fid:"pp-perpetual", brand:"Patek Philippe", family:"Perpetual Calendar",
-    name:"Perpetual Calendar", nick:"5327 Rose Gold", ref:"5327R-001",
-    mat:"18k Rose Gold", bezel:"Rose Gold", dial:"Brown", brace:"Leather", size:"38mm",
-    status:"current", era:"2012–Present",
-    desc:"Rose gold perpetual calendar with brown dial.",
-    pricing:PP_P([82000,108000,146000],[76000,100000,135000],[70000,93000,125000],[65000,87000,116000]),
-    cM:PP_CM_GOLD, eM:PP_EM_CAL, src:PP_SRC_C24 },
+  { id:"pp-5178-enamel", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"5178 World Time — Enamel", ref:"5178G-001",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Enamel", brace:"Leather", size:"38.5mm",
+    status:"current", startYear:2012, endYear:2026,
+    desc:"World Time with enamel cloisonné dial. Each dial hand-painted, unique. Among the most artisan pieces Patek makes.",
+    pricing:PP_P([140000,185000,250000],[127000,169000,228000],[116000,154000,208000],[105000,140000,189000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  // ── GRAND COMPLICATIONS ──────────────────────────────────────────────────────
-  { id:"gc-5370-mono", fid:"pp-grandcomp", brand:"Patek Philippe", family:"Grand Complications",
-    name:"Split-Seconds Chronograph", nick:"5370 Steel", ref:"5370P-011",
-    mat:"Platinum", bezel:"Platinum", dial:"Black", brace:"Leather", size:"41mm",
-    status:"current", era:"2015–Present",
-    desc:"Split-seconds chronograph in platinum — Patek's most complex manually-wound complication. Caliber CH 29-535 PS. Extremely limited production.",
-    pricing:PP_P([250000,340000,480000],[231000,315000,445000],[214000,292000,413000],[198000,271000,383000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:PP_SRC_TOP },
+  { id:"pp-5208-minute-rep", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"5208 Minute Repeater Perp Chrono", ref:"5208P-001",
+    mat:"Platinum", bezel:"Smooth", dial:"Black", brace:"Leather", size:"42mm",
+    status:"current", startYear:2011, endYear:2026,
+    desc:"The 5208 — the most complex Patek available to order. Minute repeater, perpetual calendar, instantaneous chronograph. Ultra-rare.",
+    pricing:PP_P([1200000,1600000,2400000],[0,0,0],[0,0,0],[900000,1200000,1800000]),
+    cM:PP_CM_RARE, yM:PP_YM_STD, src:PP_SRC_AUC },
 
-  { id:"gc-5207-wg", fid:"pp-grandcomp", brand:"Patek Philippe", family:"Grand Complications",
-    name:"Grand Complication", nick:"5207 Triple Complication", ref:"5207G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver", brace:"Leather", size:"41mm",
-    status:"limited", era:"2012–Present",
-    desc:"Triple complication: minute repeater, instantaneous perpetual calendar, tourbillon. One of the most complex wristwatches ever made.",
-    pricing:PP_P([1200000,1800000,3000000],[0,0,0],[0,0,0],[1000000,1500000,2600000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:["Phillips","Christie's"] },
+  { id:"pp-5216-minute-rep", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"5216 Minute Repeater Tourbillon", ref:"5216R-001",
+    mat:"18k Rose Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"41mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Minute repeater with tourbillon in rose gold. Caliber R TO 27 PS QI. Extraordinary mechanical achievement.",
+    pricing:PP_P([900000,1200000,1800000],[0,0,0],[0,0,0],[700000,950000,1500000]),
+    cM:PP_CM_RARE, yM:PP_YM_STD, src:PP_SRC_AUC },
 
-  { id:"gc-5216-tourbillon", fid:"pp-grandcomp", brand:"Patek Philippe", family:"Grand Complications",
-    name:"Tourbillon", nick:"5216R Tourbillon", ref:"5216R-001",
-    mat:"18k Rose Gold", bezel:"Rose Gold", dial:"Silver", brace:"Leather", size:"42mm",
-    status:"current", era:"2022–Present",
-    desc:"Rose gold tourbillon with new ultra-thin 30-255 PS T movement. Patek's most accessible tourbillon.",
-    pricing:PP_P([280000,380000,520000],[259000,352000,482000],[240000,326000,446000],[222000,302000,413000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:PP_SRC_TOP },
+  // ── GRAND COMPLICATIONS VINTAGE ───────────────────────────────────────────────
+  { id:"pp-1527-comp", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"Ref 1527 — Split Seconds Perp", ref:"1527",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"37mm",
+    status:"vintage", startYear:1943, endYear:1955,
+    desc:"The reference 1527 — split-seconds perpetual calendar with moon phase. One of the most important vintage Pateks ever made.",
+    vintageNote: PP_VN_COMP,
+    pricing:PP_P([4000000,7000000,15000000],[0,0,0],[0,0,0],[3000000,5500000,12000000]),
+    cM:{Unworn:1.5,Mint:1.3,Excellent:1.0,"Very Good":.80,Good:.60,Fair:.40},
+    yM:PP_YM_COMP, src:PP_SRC_AUC },
 
-  { id:"gc-5074-min-repeater", fid:"pp-grandcomp", brand:"Patek Philippe", family:"Grand Complications",
-    name:"Minute Repeater Perpetual Calendar", nick:"5074 Platinum", ref:"5074P-010",
-    mat:"Platinum", bezel:"Platinum", dial:"Black", brace:"Leather", size:"42.8mm",
-    status:"discontinued", era:"2002–2019",
-    desc:"Minute repeater with perpetual calendar in platinum. Discontinued. Pinnacle of traditional Patek horology.",
-    pricing:PP_P([500000,750000,1200000],[0,0,0],[0,0,0],[420000,650000,1050000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:["Phillips","Christie's","Sotheby's"] },
+  { id:"pp-2499-chrono", fid:"pp-grand-comp", family:"Grand Complications",
+    name:"Grand Complications", nick:"Ref 2499 — Perp Calendar Chrono", ref:"2499",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"38mm",
+    status:"vintage", startYear:1951, endYear:1985,
+    desc:"The reference 2499 — perpetual calendar chronograph produced across 4 series. Each series commands different premiums. First series most valuable.",
+    vintageNote: PP_VN_COMP,
+    pricing:PP_P([800000,1500000,4000000],[0,0,0],[0,0,0],[600000,1200000,3200000]),
+    cM:{Unworn:1.5,Mint:1.28,Excellent:1.0,"Very Good":.80,Good:.60,Fair:.40},
+    yM:PP_YM_COMP, src:PP_SRC_AUC },
 
-  // ── SKY MOON TOURBILLON ──────────────────────────────────────────────────────
-  { id:"gc-6002-skymoon", fid:"pp-skymoon", brand:"Patek Philippe", family:"Sky Moon Tourbillon",
-    name:"Sky Moon Tourbillon", nick:"6002G", ref:"6002G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Blue/Enamel", brace:"Leather", size:"44mm",
-    status:"limited", era:"2018–Present",
-    desc:"The most complicated Patek Philippe wristwatch currently produced. Double-sided dial, 12 complications including minute repeater, tourbillon, and sidereal sky chart. Under 10 pieces per year.",
-    pricing:PP_P([2500000,3800000,6000000],[0,0,0],[0,0,0],[2000000,3200000,5200000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:["Phillips","Christie's"] },
+  // ── WORLD TIME ────────────────────────────────────────────────────────────────
+  { id:"pp-5230-blue", fid:"pp-world-time", family:"World Time",
+    name:"World Time", nick:"5230 Blue Enamel", ref:"5230G-010",
+    mat:"18k White Gold", bezel:"Smooth", dial:"Blue Enamel", brace:"Leather", size:"38.5mm",
+    status:"current", startYear:2016, endYear:2026,
+    desc:"The modern World Time with enamel dial. The Cottier mechanism displays all 24 time zones simultaneously.",
+    pricing:PP_P([85000,115000,155000],[77000,105000,141000],[70000,95000,129000],[64000,87000,118000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  // ── WORLD TIME 5230 / 5131 ───────────────────────────────────────────────────
-  { id:"wt-5230-wg", fid:"pp-worldtime", brand:"Patek Philippe", family:"World Time",
-    name:"World Time", nick:"5230 White Gold Blue", ref:"5230G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Blue", brace:"Leather", size:"38.5mm",
-    status:"current", era:"2016–Present",
-    desc:"World Time in white gold — simultaneous display of all 24 time zones. Caliber 240 HU. Patek's most universally appealing complication.",
-    pricing:PP_P([58000,76000,100000],[54000,71000,93000],[50000,66000,87000],[46000,61000,81000]),
-    cM:PP_CM_GOLD, eM:PP_EM_STD, src:PP_SRC_C24 },
+  { id:"pp-5231-enamel", fid:"pp-world-time", family:"World Time",
+    name:"World Time", nick:"5231 Cloisonné", ref:"5231J-001",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Cloisonné Enamel", brace:"Leather", size:"38.5mm",
+    status:"current", startYear:2016, endYear:2026,
+    desc:"Cloisonné enamel World Time — different artisan map motif each year. Extremely collectible, each reference unique.",
+    pricing:PP_P([250000,350000,500000],[228000,319000,456000],[207000,291000,415000],[189000,265000,378000]),
+    cM:PP_CM_RARE, yM:PP_YM_STD, src:PP_SRC_AUC },
 
-  { id:"wt-5231-wg-enamel", fid:"pp-worldtime", brand:"Patek Philippe", family:"World Time",
-    name:"World Time", nick:"5231 Enamel Map", ref:"5231G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Cloisonné Enamel", brace:"Leather", size:"38.5mm",
-    status:"limited", era:"2017–Present",
-    desc:"World Time with cloisonné enamel dial — hand-painted world map. Each piece unique. The intersection of watchmaking and miniature painting. Extremely limited.",
-    pricing:PP_P([200000,280000,400000],[185000,260000,371000],[171000,241000,344000],[158000,224000,319000]),
-    cM:PP_CM_RARE, eM:PP_EM_STD, src:PP_SRC_TOP },
+  { id:"pp-515-worldtime", fid:"pp-world-time", family:"World Time",
+    name:"World Time", nick:"Ref 515 — Czapek Era", ref:"515",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"32mm",
+    status:"vintage", startYear:1939, endYear:1944,
+    desc:"The original Patek World Time — Louis Cottier's mechanism in a round case. Historical masterpiece. Only a handful known.",
+    vintageNote: PP_VN_WT,
+    pricing:PP_P([2500000,5000000,12000000],[0,0,0],[0,0,0],[2000000,4000000,9500000]),
+    cM:{Unworn:1.5,Mint:1.3,Excellent:1.0,"Very Good":.78,Good:.58,Fair:.38},
+    yM:PP_YM_WORLD_TIME, src:PP_SRC_AUC },
 
-  // ── CHRONOGRAPH 5172 / 5170 ──────────────────────────────────────────────────
-  { id:"chron-5172-wg", fid:"pp-chronograph", brand:"Patek Philippe", family:"Chronograph",
-    name:"Chronograph", nick:"5172 White Gold", ref:"5172G-010",
-    mat:"18k White Gold", bezel:"White Gold", dial:"Silver", brace:"Leather", size:"41mm",
-    status:"current", era:"2019–Present",
-    desc:"Manual-wind chronograph in white gold. Caliber CHR 29-535 PS. Classic column-wheel movement visible through caseback.",
-    pricing:PP_P([95000,128000,172000],[88000,119000,160000],[81000,110000,149000],[75000,102000,138000]),
-    cM:PP_CM_GOLD, eM:PP_EM_COMP, src:PP_SRC_C24 },
+  // ── ANNUAL CALENDAR ───────────────────────────────────────────────────────────
+  { id:"pp-5396-blk", fid:"pp-annual-cal", family:"Annual Calendar",
+    name:"Annual Calendar", nick:"5396 Rose Gold Black", ref:"5396R-014",
+    mat:"18k Rose Gold", bezel:"Fluted", dial:"Black", brace:"Leather", size:"38mm",
+    status:"current", startYear:2016, endYear:2026,
+    desc:"Patek's signature complication — the annual calendar needs just one manual correction per year. Caliber 324 S QA LU 24H/303.",
+    pricing:PP_P([55000,72000,96000],[50000,66000,88000],[46000,60000,80000],[42000,55000,73000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"chron-5170-yg", fid:"pp-chronograph", brand:"Patek Philippe", family:"Chronograph",
-    name:"Chronograph", nick:"5170 Yellow Gold", ref:"5170J-010",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Cream", brace:"Leather", size:"39mm",
-    status:"discontinued", era:"2011–2020",
-    desc:"Previous-generation manual chronograph in yellow gold. Discontinued. The purist's Patek chronograph.",
-    pricing:PP_P([100000,138000,185000],[92000,128000,172000],[85000,119000,160000],[79000,111000,149000]),
-    cM:PP_CM_GOLD, eM:PP_EM_COMP, src:PP_SRC_C24 },
+  { id:"pp-5396-blue", fid:"pp-annual-cal", family:"Annual Calendar",
+    name:"Annual Calendar", nick:"5396 White Gold Blue", ref:"5396G-011",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Blue", brace:"Leather", size:"38mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Blue dial annual calendar in white gold. The most in-demand current configuration.",
+    pricing:PP_P([62000,82000,108000],[56000,75000,99000],[51000,68000,90000],[47000,62000,82000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"chron-5004-split", fid:"pp-chronograph", brand:"Patek Philippe", family:"Chronograph",
-    name:"Split-Seconds Rattrapante", nick:"5004 Steel", ref:"5004A-011",
-    mat:"Stainless Steel", bezel:"Steel", dial:"Black", brace:"Leather", size:"36.8mm",
-    status:"discontinued", era:"1994–2011",
-    desc:"One of only ~10 steel examples of the 5004 ever made. Possibly the most valuable steel watch per piece outside of the Nautilus family. Museum-quality rarity.",
-    pricing:PP_P([500000,900000,2000000],[0,0,0],[0,0,0],[420000,780000,1700000]),
-    cM:PP_CM_RARE, eM:PP_EM_COMP, src:["Phillips","Christie's","Sotheby's"] },
+  { id:"pp-5726-blk", fid:"pp-annual-cal", family:"Annual Calendar",
+    name:"Annual Calendar with Moon Phase", nick:"5726 Steel — 'Jumbo Cal'", ref:"5726A-001",
+    mat:"Stainless Steel", bezel:"Fluted", dial:"Black", brace:"Leather", size:"39mm",
+    status:"discontinued", startYear:2011, endYear:2022,
+    desc:"Annual calendar with moon phase in steel — the rare affordable-entry annual calendar. Discontinued, now commands strong premium.",
+    pricing:PP_P([65000,88000,120000],[59000,80000,109000],[54000,73000,99000],[49000,67000,91000]),
+    cM:PP_CM_STD, yM:PP_YM_STD, src:PP_SRC_MAIN },
 
-  // ── VINTAGE REFERENCES ───────────────────────────────────────────────────────
-  { id:"vtg-2499-yg", fid:"pp-vintage", brand:"Patek Philippe", family:"Vintage Grand Complications",
-    name:"Perpetual Calendar Chronograph", nick:"Ref. 2499 — The Holy Grail", ref:"2499",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Cream", brace:"Leather", size:"38mm",
-    status:"vintage", era:"1950–1985",
-    desc:"The most important vintage chronograph ever made. Four series produced. Steel examples essentially priceless. Yellow gold regularly achieves $2M–$5M+ at Phillips, Christie's, and Sotheby's.",
-    pricing:PP_P([1500000,3000000,6000000],[0,0,0],[0,0,0],[1200000,2500000,5000000]),
-    cM:PP_CM_VTG, eM:{ "Pre-1960":1.4,"1960s":1.3,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:["Phillips","Christie's","Sotheby's"] },
+  // ── MOON PHASE ────────────────────────────────────────────────────────────────
+  { id:"pp-5719-wg", fid:"pp-moon-phase", family:"Moon Phase",
+    name:"Complications", nick:"5719 White Gold Moon Phase", ref:"5719G-010",
+    mat:"18k White Gold", bezel:"Fluted", dial:"Blue", brace:"Leather", size:"37mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Moon phase in white gold. Small seconds, date. The ideal Patek for those who want a complication without the grand complications price.",
+    pricing:PP_P([70000,92000,124000],[64000,84000,113000],[58000,77000,103000],[53000,70000,94000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"vtg-1518-yg", fid:"pp-vintage", brand:"Patek Philippe", family:"Vintage Grand Complications",
-    name:"Perpetual Calendar Chronograph", nick:"Ref. 1518 — First Series", ref:"1518",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Silver", brace:"Leather", size:"35mm",
-    status:"vintage", era:"1941–1954",
-    desc:"The world's first serially-produced perpetual calendar chronograph wristwatch. 281 examples. Steel examples: 4 known. Among the most historically important watches ever made.",
-    pricing:PP_P([800000,1800000,5000000],[0,0,0],[0,0,0],[700000,1500000,4000000]),
-    cM:PP_CM_VTG, eM:{ "Pre-1960":1.5,"1960s":1.3,"1970s":1.1,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:["Phillips","Christie's","Sotheby's"] },
+  { id:"pp-6119r-moonphase", fid:"pp-moon-phase", family:"Moon Phase",
+    name:"Complications", nick:"6102 Officer — Moon Phase", ref:"6102R-001",
+    mat:"18k Rose Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"42mm",
+    status:"discontinued", startYear:2017, endYear:2023,
+    desc:"Officer-case moon phase in rose gold. Hinged case reveals the movement engraving. Elegant and unusual.",
+    pricing:PP_P([45000,60000,82000],[41000,55000,75000],[37000,50000,68000],[34000,46000,62000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
-  { id:"vtg-130-chronograph", fid:"pp-vintage", brand:"Patek Philippe", family:"Vintage Grand Complications",
-    name:"Chronograph", nick:"Ref. 130 — First Patek Chrono", ref:"130",
-    mat:"18k Yellow Gold", bezel:"Yellow Gold", dial:"Silver", brace:"Leather", size:"33mm",
-    status:"vintage", era:"1934–1960",
-    desc:"Patek's first wristwatch chronograph. Highly collectible. Condition and dial quality drive dramatic price swings.",
-    pricing:PP_P([80000,180000,450000],[0,0,0],[0,0,0],[60000,140000,360000]),
-    cM:PP_CM_VTG, eM:{ "Pre-1960":1.5,"1960s":1.2,"1970s":1.0,"1980s":1.0,"1990s":1.0,"2000s":1.0,"2010s":1.0,"2020s":1.0 },
-    src:PP_SRC_VTG },
+  // ── CHRONOGRAPH ───────────────────────────────────────────────────────────────
+  { id:"pp-5172-blk", fid:"pp-chrono", family:"Chronograph",
+    name:"Chronograph", nick:"5172 Rose Gold — Black", ref:"5172R-010",
+    mat:"18k Rose Gold", bezel:"Smooth", dial:"Black", brace:"Leather", size:"41mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Manual-wind column wheel chronograph — Caliber CH 29-535 PS. The purist's chronograph in rose gold.",
+    pricing:PP_P([75000,98000,132000],[68000,89000,120000],[62000,81000,109000],[57000,74000,100000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
+
+  { id:"pp-5172-slv", fid:"pp-chrono", family:"Chronograph",
+    name:"Chronograph", nick:"5172 Rose Gold — Silver", ref:"5172R-001",
+    mat:"18k Rose Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"41mm",
+    status:"current", startYear:2019, endYear:2026,
+    desc:"Silver dial 5172 — the classic presentation of the manual chronograph.",
+    pricing:PP_P([72000,95000,128000],[66000,87000,117000],[60000,79000,106000],[54000,72000,97000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
+
+  { id:"pp-1463-chrono", fid:"pp-chrono", family:"Chronograph",
+    name:"Chronograph", nick:"Ref 1463 — Teardrop Lugs", ref:"1463",
+    mat:"18k Yellow Gold", bezel:"Smooth", dial:"Silver", brace:"Leather", size:"35mm",
+    status:"vintage", startYear:1944, endYear:1970,
+    desc:"The reference 1463 — teardrop lugs, column wheel, horizontal clutch. The most beautiful Patek chronograph ever made. A true grail piece.",
+    vintageNote: PP_VN_GEN,
+    pricing:PP_P([350000,600000,1500000],[0,0,0],[0,0,0],[250000,470000,1200000]),
+    cM:{Unworn:1.5,Mint:1.25,Excellent:1.0,"Very Good":.80,Good:.62,Fair:.42},
+    yM:PP_YM_COMP, src:PP_SRC_AUC },
+
+  // ── GONDOLO ───────────────────────────────────────────────────────────────────
+  { id:"pp-5098-yg", fid:"pp-gondolo", family:"Gondolo",
+    name:"Gondolo", nick:"5098 Yellow Gold", ref:"5098J-001",
+    mat:"18k Yellow Gold", bezel:"Art Deco", dial:"Silver", brace:"Leather", size:"34×42mm",
+    status:"discontinued", startYear:1993, endYear:2019,
+    desc:"The modern Gondolo — rectangular Art Deco case. Discontinued. Elegant and uncommon.",
+    pricing:PP_P([18000,25000,36000],[16000,22000,33000],[14000,20000,30000],[12500,18000,27000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
+
+  // ── TWENTY-4 ──────────────────────────────────────────────────────────────────
+  { id:"pp-7300-blk", fid:"pp-twenty4", family:"Twenty-4",
+    name:"Twenty~4", nick:"7300 Automatic — Black", ref:"7300/1451R-010",
+    mat:"18k Rose Gold", bezel:"Integrated RG", dial:"Black", brace:"Integrated RG", size:"36mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"The modern automatic Twenty~4 in rose gold. The most wearable Patek for everyday.",
+    pricing:PP_P([45000,60000,80000],[41000,55000,73000],[37000,50000,67000],[34000,46000,61000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
+
+  { id:"pp-7300-blue", fid:"pp-twenty4", family:"Twenty-4",
+    name:"Twenty~4", nick:"7300 Automatic — Blue", ref:"7300/1451G-010",
+    mat:"18k White Gold", bezel:"Integrated WG", dial:"Blue", brace:"Integrated WG", size:"36mm",
+    status:"current", startYear:2021, endYear:2026,
+    desc:"Blue dial automatic Twenty~4 in white gold. The most popular Twenty~4 configuration.",
+    pricing:PP_P([48000,64000,85000],[44000,58000,78000],[40000,53000,71000],[36000,48000,65000]),
+    cM:PP_CM_GOLD, yM:PP_YM_STD, src:PP_SRC_C24 },
 
 ];
 
 // ── FAMILY INDEX ──────────────────────────────────────────────────────────────
-window.PP_FAMILIES = {};
-window.PP_WATCHES.forEach(w => {
-  if (!window.PP_FAMILIES[w.fid]) {
-    window.PP_FAMILIES[w.fid] = { fid: w.fid, family: w.family, brand: w.brand, ids: [] };
-  }
-  window.PP_FAMILIES[w.fid].ids.push(w.id);
+window.PATEK_FAMILIES = {};
+window.PATEK_WATCHES.forEach(w => {
+  if (!window.PATEK_FAMILIES[w.fid]) window.PATEK_FAMILIES[w.fid] = { fid:w.fid, family:w.family, ids:[] };
+  window.PATEK_FAMILIES[w.fid].ids.push(w.id);
 });
 
-console.log(`✅ Patek Philippe catalog loaded: ${window.PP_WATCHES.length} configurations across ${Object.keys(window.PP_FAMILIES).length} families`);
+// ── YEAR INTERPOLATION ENGINE (shared) ───────────────────────────────────────
+if (!window.getYearMultiplier) {
+  window.getYearMultiplier = function(yM, year) {
+    if (!yM || !year) return 1.0;
+    const keys = Object.keys(yM).map(Number).sort((a,b)=>a-b);
+    if (year <= keys[0]) return yM[keys[0]];
+    if (year >= keys[keys.length-1]) return yM[keys[keys.length-1]];
+    for (let i=0;i<keys.length-1;i++) {
+      if (year>=keys[i] && year<=keys[i+1]) {
+        const t = (year-keys[i])/(keys[i+1]-keys[i]);
+        return yM[keys[i]] + t*(yM[keys[i+1]]-yM[keys[i]]);
+      }
+    }
+    return 1.0;
+  };
+}
+
+window.calcPatekPrice = function(watch, set, condition, year) {
+  const base = watch.pricing[set] || watch.pricing["Full Set"];
+  if (!base||!base.avg) return {low:0,avg:0,high:0};
+  const cM = watch.cM[condition] || 1.0;
+  const yMult = window.getYearMultiplier(watch.yM, year);
+  return {
+    low:  Math.round(base.low  * cM * yMult),
+    avg:  Math.round(base.avg  * cM * yMult),
+    high: Math.round(base.high * cM * yMult)
+  };
+};
+
+window.getPatekProductionYears = function(watch) {
+  const years=[];
+  for (let y=watch.startYear;y<=watch.endYear;y++) years.push(y);
+  return years;
+};
+
+console.log(`✅ Patek loaded: ${window.PATEK_WATCHES.length} refs · ${Object.keys(window.PATEK_FAMILIES).length} families · year-specific pricing active`);
