@@ -72,48 +72,67 @@ function showToast(msg) {
 /* ── HELPERS ─────────────────────────────────────────────────────────────────── */
 const CONDITIONS = ['Unworn','Mint','Excellent','Very Good','Good','Fair'];
 const SETS       = ['Full Set','Watch + Papers','Watch + Box','Watch Only'];
-const ERAS       = ['Pre-1960','1960s','1970s','1980s','1990s','2000s','2010s','2020s'];
 
 const BADGE_CLASS = { current:'bc', discontinued:'bd', vintage:'bv', limited:'bl' };
 const BADGE_LABEL = { current:'Current', discontinued:'Disc.', vintage:'Vintage', limited:'Limited' };
 
-function getAllWatches() {
-  const r = (window.ROLEX_WATCHES || []).map(w => ({ ...w, brand: 'Rolex' }));
-  const a = (window.AP_WATCHES || []).map(w => ({ ...w, brand: 'Audemars Piguet' }));
-  const p = (window.PP_WATCHES || []).map(w => ({ ...w, brand: 'Patek Philippe' }));
-  return [...r, ...a, ...p];
+function allWatches() {
+  return [
+    ...(window.ROLEX_WATCHES  || []),
+    ...(window.AP_WATCHES     || []),
+    ...(window.PATEK_WATCHES  || []),
+  ];
 }
 
-function getAllFamilies() {
-  return {
-    ...(window.ROLEX_FAMILIES || {}),
-    ...(window.AP_FAMILIES || {}),
-    ...(window.PP_FAMILIES || {})
-  };
+function watchById(id) { return allWatches().find(w => w.id === id); }
+
+function watchBrand(watch) {
+  if (window.ROLEX_WATCHES  && window.ROLEX_WATCHES.find(w=>w.id===watch.id))  return 'Rolex';
+  if (window.AP_WATCHES     && window.AP_WATCHES.find(w=>w.id===watch.id))     return 'Audemars Piguet';
+  if (window.PATEK_WATCHES  && window.PATEK_WATCHES.find(w=>w.id===watch.id))  return 'Patek Philippe';
+  return '';
 }
 
-function watchById(id) { return getAllWatches().find(w => w.id === id); }
+function calcPriceUnified(watch, set, cond, year) {
+  // Try brand-specific calculators first, then generic window.calcPrice
+  if (watchBrand(watch) === 'Rolex' && window.calcPrice) return window.calcPrice(watch, set, cond, year);
+  if (watchBrand(watch) === 'Audemars Piguet' && window.calcAPPrice) return window.calcAPPrice(watch, set, cond, year);
+  if (watchBrand(watch) === 'Patek Philippe' && window.calcPatekPrice) return window.calcPatekPrice(watch, set, cond, year);
+  
+  if (window.calcPrice) return window.calcPrice(watch, set, cond, year);
+  return { low:0, avg:0, high:0 };
+}
+
+function defaultYear(watch) {
+  // Default to most recent production year
+  return watch.endYear || new Date().getFullYear();
+}
 
 function getImg(watch) {
+  // Priority 1: URL on the watch object in the data file (Cloudinary — universal)
+  if (watch.img) return watch.img;
+  // Priority 2: Family-level Cloudinary URL from any sibling watch
+  const sibling = allWatches().find(w => w.fid === watch.fid && w.img);
+  if (sibling) return sibling.img;
+  // Priority 3: Local base64 uploaded by this user on this device only
   return STATE.photos[watch.id] || STATE.photos[watch.fid] || null;
 }
 
 function isInWishlist(wid) { return STATE.wishlist.some(w => w.wid === wid); }
 
 /* ── PRICE DISPLAY ───────────────────────────────────────────────────────────── */
-function priceFor(watch, set, cond, era) {
-  return window.calcPrice(watch, set, cond, era);
+function priceFor(watch, set, cond, year) {
+  return calcPriceUnified(watch, set, cond, year);
 }
 
 /* ── FILTER WATCHES ──────────────────────────────────────────────────────────── */
 function filteredWatches() {
-  let list = getAllWatches();
+  let list = allWatches();
   if (STATE.activeFid) list = list.filter(w => w.fid === STATE.activeFid);
   if (STATE.statusFilter.length) list = list.filter(w => STATE.statusFilter.includes(w.status));
   if (STATE.search.trim()) {
     const q = STATE.search.toLowerCase();
     list = list.filter(w =>
-      w.brand.toLowerCase().includes(q) ||
       w.name.toLowerCase().includes(q) ||
       w.family.toLowerCase().includes(q) ||
       w.ref.toLowerCase().includes(q) ||
@@ -121,7 +140,8 @@ function filteredWatches() {
       (w.dial || '').toLowerCase().includes(q) ||
       (w.mat  || '').toLowerCase().includes(q) ||
       (w.bezel|| '').toLowerCase().includes(q) ||
-      (w.era  || '').toLowerCase().includes(q)
+      String(w.startYear||'').includes(q) ||
+      String(w.endYear||'').includes(q)
     );
   }
   return list;
@@ -420,26 +440,22 @@ function renderCatalog() {
   const sidebar = document.createElement('div');
   sidebar.id = 'sidebar';
 
-  const allWatches = getAllWatches();
-  const allFams = getAllFamilies();
-  const brands = ['Rolex', 'Audemars Piguet', 'Patek Philippe'];
+  const brands = [
+    { name: 'Rolex', families: window.ROLEX_FAMILIES, watches: window.ROLEX_WATCHES },
+    { name: 'Audemars Piguet', families: window.AP_FAMILIES, watches: window.AP_WATCHES },
+    { name: 'Patek Philippe', families: window.PATEK_FAMILIES, watches: window.PATEK_WATCHES }
+  ];
 
-  brands.forEach(brandName => {
-    const brandFams = Object.values(allFams).filter(f => {
-      // Find first watch of this family to check brand
-      const firstWatch = allWatches.find(w => w.fid === f.fid);
-      return firstWatch && firstWatch.brand === brandName;
-    });
+  brands.forEach(b => {
+    if (!b.families) return;
+    
+    const brandHead = document.createElement('div');
+    brandHead.className = 'sb-head';
+    brandHead.textContent = b.name;
+    sidebar.appendChild(brandHead);
 
-    if (brandFams.length === 0) return;
-
-    const bhead = document.createElement('div');
-    bhead.className = 'sb-head';
-    bhead.textContent = brandName;
-    sidebar.appendChild(bhead);
-
-    brandFams.forEach(fam => {
-      const watches = allWatches.filter(w => w.fid === fam.fid);
+    Object.values(b.families).forEach(fam => {
+      const watches = b.watches.filter(w => w.fid === fam.fid);
       const hasVintage = watches.some(w => w.status === 'vintage' || w.status === 'discontinued');
 
       const btn = document.createElement('button');
@@ -469,10 +485,6 @@ function renderCatalog() {
       });
       sidebar.appendChild(btn);
     });
-    
-    const sep = document.createElement('div');
-    sep.className = 'sb-sep';
-    sidebar.appendChild(sep);
   });
 
   page.appendChild(sidebar);
@@ -484,12 +496,25 @@ function renderCatalog() {
   // Hero
   const hero = document.createElement('div');
   hero.className = 'c-hero';
-  const famMeta = STATE.activeFid ? getAllFamilies()[STATE.activeFid] : null;
+  
+  let famMeta = null;
+  let activeBrand = 'Rolex'; // Default fallback
+
+  if (STATE.activeFid) {
+    famMeta = (window.ROLEX_FAMILIES && window.ROLEX_FAMILIES[STATE.activeFid]) || 
+              (window.AP_FAMILIES && window.AP_FAMILIES[STATE.activeFid]) || 
+              (window.PATEK_FAMILIES && window.PATEK_FAMILIES[STATE.activeFid]);
+    
+    if (famMeta) {
+      const sampleWatch = allWatches().find(w => w.fid === famMeta.fid);
+      if (sampleWatch) activeBrand = watchBrand(sampleWatch);
+    }
+  }
+
   if (famMeta) {
-    const brand = allWatches.find(w => w.fid === STATE.activeFid)?.brand || 'Rolex';
-    hero.innerHTML = `<h1><em>${famMeta.family}</em></h1><p>${brand} · All configurations, dials &amp; materials</p>`;
+    hero.innerHTML = `<h1><em>${famMeta.family}</em></h1><p>${activeBrand} · All configurations, dials &amp; materials</p>`;
   } else {
-    hero.innerHTML = `<h1>Private <em>Client</em> Catalog</h1><p>${allWatches.length} configurations · Rolex · AP · Patek Philippe</p>`;
+    hero.innerHTML = `<h1>The <em>Watch Gallery</em> Collection</h1><p>${allWatches().length} configurations · Current · Discontinued · Vintage · Limited</p>`;
   }
   content.appendChild(hero);
 
@@ -567,30 +592,43 @@ function renderCatalog() {
     const famHdr = document.createElement('div');
     famHdr.className = 'fam-hdr';
 
-    const brand = allWatches.find(w => w.fid === STATE.activeFid)?.brand || 'Rolex';
     const left = document.createElement('div');
-    left.innerHTML = `<div class="fh-brand">${brand}</div><div class="fh-title">${famMeta.family}</div><div class="fh-cnt">${famMeta.ids.length} configurations</div>`;
+    left.innerHTML = `<div class="fh-brand">${activeBrand}</div><div class="fh-title">${famMeta.family}</div><div class="fh-cnt">${famMeta.ids.length} configurations</div>`;
     famHdr.appendChild(left);
 
-    const uploadLabel = document.createElement('label');
-    uploadLabel.className = 'uplabel';
-    uploadLabel.innerHTML = '📷 Upload Family Photo';
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.addEventListener('change', e => {
-      const f = e.target.files[0]; if (!f) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        STATE.photos[STATE.activeFid] = ev.target.result;
-        saveUserState();
-        showToast('📷 Family photo uploaded! Applies to all ' + famMeta.family + ' variants.');
-        render();
-      };
-      reader.readAsDataURL(f);
+    // Family photo — Cloudinary URL set in data file, or local preview only
+    const hasCloudinary = famMeta.ids.some(id => {
+      const w = allWatches().find(x => x.id === id);
+      return w && w.img;
     });
-    uploadLabel.appendChild(fileInput);
-    famHdr.appendChild(uploadLabel);
+    if (hasCloudinary) {
+      const cdnNote = document.createElement('div');
+      cdnNote.className = 'uplabel cdn-set';
+      cdnNote.textContent = '☁ Photo active';
+      famHdr.appendChild(cdnNote);
+    } else {
+      const uploadLabel = document.createElement('label');
+      uploadLabel.className = 'uplabel';
+      uploadLabel.title = 'Device preview only — add img: URL to data file for all clients';
+      uploadLabel.textContent = '📷 Preview (this device)';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', e => {
+        const f = e.target.files[0]; if (!f) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          STATE.photos[STATE.activeFid] = ev.target.result;
+          saveUserState();
+          showToast('Local preview set — upload to Cloudinary and add img: URL to data file for all clients');
+          render();
+        };
+        reader.readAsDataURL(f);
+      });
+      uploadLabel.appendChild(fileInput);
+      famHdr.appendChild(uploadLabel);
+    }
     content.appendChild(famHdr);
   }
 
@@ -662,7 +700,7 @@ function renderWatchCard(watch) {
 
   const brandEl = document.createElement('div');
   brandEl.className = 'wcard-brand';
-  brandEl.textContent = watch.brand;
+  brandEl.textContent = watchBrand(watch);
   info.appendChild(brandEl);
 
   const nameEl = document.createElement('div');
@@ -693,7 +731,7 @@ function renderWatchCard(watch) {
   info.appendChild(specs);
 
   // Price
-  const baseP = window.calcPrice(watch, 'Full Set', 'Excellent', '2020s');
+  const baseP = window.calcPrice ? window.calcPrice(watch, 'Full Set', 'Excellent', watch.endYear) : calcPriceUnified(watch, 'Full Set', 'Excellent', watch.endYear);
   const priceEl = document.createElement('div');
   priceEl.className = 'wcard-price';
   if (baseP.avg > 0) {
@@ -748,51 +786,75 @@ function renderWatchModal(watch) {
     imgPanel.innerHTML = `<div class="mimg-ph">${phSVG('ph-svg')}</div>`;
   }
 
-  // Era badge
+  // Production year range badge
   const eraB = document.createElement('div');
   eraB.className = 'mera';
-  eraB.textContent = watch.era;
+  eraB.textContent = watch.startYear === watch.endYear
+    ? `${watch.startYear}`
+    : `${watch.startYear}–${watch.endYear}`;
   imgPanel.appendChild(eraB);
 
-  // Upload
+  // Photo controls — Cloudinary URL (universal) + local preview fallback
   const upWrap = document.createElement('div');
   upWrap.className = 'mup';
-  const upLabel = document.createElement('label');
-  upLabel.innerHTML = '📷 Upload Photo';
-  const upInput = document.createElement('input');
-  upInput.type = 'file';
-  upInput.accept = 'image/*';
-  upInput.addEventListener('change', e => {
-    const f = e.target.files[0]; if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      STATE.photos[watch.id] = ev.target.result;
-      saveUserState();
-      showToast(`📷 Photo uploaded for ${watch.name}${watch.nick ? ' "' + watch.nick + '"' : ''}`);
-      render();
-    };
-    reader.readAsDataURL(f);
-  });
-  upLabel.appendChild(upInput);
-  upWrap.appendChild(upLabel);
+
+  // Show Cloudinary indicator if image already set in data file
+  if (watch.img) {
+    const cdnTag = document.createElement('div');
+    cdnTag.className = 'mup-cdn';
+    cdnTag.textContent = '☁ Photo set';
+    upWrap.appendChild(cdnTag);
+  } else {
+    // Local preview upload — device only, shown as fallback
+    const upLabel = document.createElement('label');
+    upLabel.className = 'mup-local';
+    upLabel.title = 'Device preview only — upload to Cloudinary for all clients';
+    upLabel.textContent = '📷 Preview (this device)';
+    const upInput = document.createElement('input');
+    upInput.type = 'file';
+    upInput.accept = 'image/*';
+    upInput.style.display = 'none';
+    upInput.addEventListener('change', e => {
+      const f = e.target.files[0]; if (!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        STATE.photos[watch.id] = ev.target.result;
+        saveUserState();
+        showToast(`📷 Local preview set — upload to Cloudinary to make permanent`);
+        render();
+      };
+      reader.readAsDataURL(f);
+    });
+    upLabel.appendChild(upInput);
+    upWrap.appendChild(upLabel);
+  }
   imgPanel.appendChild(upWrap);
   grid.appendChild(imgPanel);
 
-  // Content panel
+  // Content panel — built entirely with createElement, never innerHTML+= on the parent
   const cnt = document.createElement('div');
   cnt.className = 'mcnt';
 
-  cnt.innerHTML += `<div class="m-brand">${watch.brand}</div>`;
-  cnt.innerHTML += `<div class="m-name">${watch.name}</div>`;
-  if (watch.nick) cnt.innerHTML += `<div class="m-nick">"${watch.nick}"</div>`;
-  cnt.innerHTML += `<div class="m-ref">Ref. ${watch.ref} · ${watch.size}</div>`;
+  function addDiv(cls, html) {
+    const d = document.createElement('div');
+    d.className = cls;
+    d.innerHTML = html;
+    cnt.appendChild(d);
+  }
+  function addDivdr() { const d=document.createElement('div'); d.className='divdr'; cnt.appendChild(d); }
 
+  addDiv('m-brand', watchBrand(watch));
+  addDiv('m-name', watch.name);
+  if (watch.nick) addDiv('m-nick', `"${watch.nick}"`);
+  addDiv('m-ref', `Ref. ${watch.ref} · ${watch.size}`);
+
+  const yearRange = watch.startYear === watch.endYear ? `${watch.startYear}` : `${watch.startYear}–${watch.endYear}`;
   if (watch.status === 'discontinued') {
-    cnt.innerHTML += `<div class="m-disc">⚠ Discontinued — Secondary market only · ${watch.era}</div>`;
+    addDiv('m-disc', `⚠ Discontinued — Secondary market only · ${yearRange}`);
   } else if (watch.status === 'limited') {
-    cnt.innerHTML += `<div class="m-ltd">✦ Limited Edition / Boutique Only · ${watch.era}</div>`;
+    addDiv('m-ltd', `✦ Limited Edition / Boutique Only · ${yearRange}`);
   } else if (watch.status === 'vintage') {
-    cnt.innerHTML += `<div class="m-vtg">⧗ Vintage Reference · ${watch.era}</div>`;
+    addDiv('m-vtg', `⧗ Vintage Reference · ${yearRange}`);
   }
 
   const specsDiv = document.createElement('div');
@@ -805,13 +867,26 @@ function renderWatchModal(watch) {
   });
   cnt.appendChild(specsDiv);
 
-  cnt.innerHTML += `<div class="m-desc">${watch.desc}</div>`;
-  cnt.innerHTML += `<div class="divdr"></div>`;
+  addDiv('m-desc', watch.desc);
+  addDivdr();
 
   // Filter controls state
   let selSet  = 'Full Set';
   let selCond = 'Mint';
-  let selEra  = '2020s';
+  let selYear = defaultYear(watch);
+
+  // Vintage note — safe append, no innerHTML+= on parent after this
+  if (watch.vintageNote) {
+    const vnDiv = document.createElement('div');
+    vnDiv.className = 'm-vtg-note';
+    const icon = document.createElement('span');
+    icon.className = 'vtg-note-icon';
+    icon.textContent = '⧗ ';
+    vnDiv.appendChild(icon);
+    vnDiv.appendChild(document.createTextNode(watch.vintageNote));
+    cnt.appendChild(vnDiv);
+    addDivdr();
+  }
 
   function buildFilters() {
     const container = document.createElement('div');
@@ -832,7 +907,6 @@ function renderWatchModal(watch) {
         chip.addEventListener('click', () => {
           setter(opt);
           updatePriceBox();
-          // Re-render chips
           opts.querySelectorAll('.fchip').forEach(c => c.classList.toggle('sel', c.textContent === opt));
         });
         opts.appendChild(chip);
@@ -841,7 +915,33 @@ function renderWatchModal(watch) {
       return grp;
     }
 
-    container.appendChild(chipGroup('Production Era', ERAS, selEra, v => selEra = v));
+    // Year selector — individual buttons for each production year
+    const years = window.getProductionYears
+      ? window.getProductionYears(watch)
+      : (function(){const a=[];for(let y=watch.startYear;y<=watch.endYear;y++)a.push(y);return a;})();
+
+    const yGrp = document.createElement('div');
+    yGrp.className = 'fgrp';
+    const yLbl = document.createElement('div');
+    yLbl.className = 'flbl';
+    yLbl.textContent = 'Production Year';
+    yGrp.appendChild(yLbl);
+    const yOpts = document.createElement('div');
+    yOpts.className = 'fopts fopts-years';
+    years.forEach(yr => {
+      const btn = document.createElement('button');
+      btn.className = 'fchip fchip-yr' + (selYear === yr ? ' sel' : '');
+      btn.textContent = yr;
+      btn.addEventListener('click', () => {
+        selYear = yr;
+        updatePriceBox();
+        yOpts.querySelectorAll('.fchip-yr').forEach(c => c.classList.toggle('sel', Number(c.textContent) === yr));
+      });
+      yOpts.appendChild(btn);
+    });
+    yGrp.appendChild(yOpts);
+    container.appendChild(yGrp);
+
     container.appendChild(chipGroup('Configuration', SETS, selSet, v => selSet = v));
     container.appendChild(chipGroup('Condition', CONDITIONS, selCond, v => selCond = v));
 
@@ -851,8 +951,12 @@ function renderWatchModal(watch) {
   const filtersEl = buildFilters();
   cnt.appendChild(filtersEl);
 
-  // Price box
-  cnt.innerHTML += `<div class="flbl">Market Pricing</div>`;
+  // Price box — use createElement, no innerHTML+= on cnt from here on
+  const priceLbl = document.createElement('div');
+  priceLbl.className = 'flbl';
+  priceLbl.textContent = 'Market Pricing';
+  cnt.appendChild(priceLbl);
+
   const srcLine = document.createElement('div');
   srcLine.style.cssText = 'font-size:7px;color:var(--silver);letter-spacing:.3px;margin-bottom:5px;';
   srcLine.textContent = `Sources: ${watch.src.join(' · ')} · Apr 2026`;
@@ -864,7 +968,7 @@ function renderWatchModal(watch) {
   cnt.appendChild(pbox);
 
   function updatePriceBox() {
-    const p = window.calcPrice(watch, selSet, selCond, selEra);
+    const p = calcPriceUnified(watch, selSet, selCond, selYear);
     if (p.avg === 0) {
       pbox.innerHTML = `<div class="poa-note">Pricing for this configuration is available on application. Please contact us for a current valuation.</div>`;
       return;
@@ -888,7 +992,7 @@ function renderWatchModal(watch) {
         STATE.wishlist = STATE.wishlist.filter(w => w.wid !== watch.id);
         showToast(`Removed from wishlist.`);
       } else {
-        STATE.wishlist.push({ wid: watch.id, set: selSet, cond: selCond, era: selEra, addedAt: Date.now() });
+        STATE.wishlist.push({ wid: watch.id, set: selSet, cond: selCond, year: selYear, addedAt: Date.now() });
         showToast(`✓ Added to wishlist: ${watch.name}${watch.nick ? ' "' + watch.nick + '"' : ''}`);
       }
       saveUserState();
@@ -900,7 +1004,7 @@ function renderWatchModal(watch) {
     buyBtn.className = 'btn-buy';
     buyBtn.textContent = '🛒 Buy This Watch';
     buyBtn.addEventListener('click', () => {
-      STATE.buyWatch = { watch, set: selSet, cond: selCond, era: selEra };
+      STATE.buyWatch = { watch, set: selSet, cond: selCond, year: selYear };
       STATE.showBuy = true;
       render();
     });
@@ -926,7 +1030,7 @@ function renderWatchModal(watch) {
 
 /* ── BUY MODAL ───────────────────────────────────────────────────────────────── */
 function renderBuyModal(buyData) {
-  const { watch, set, cond, era } = buyData;
+  const { watch, set, cond, year } = buyData;
   const overlay = document.createElement('div');
   overlay.className = 'sm-ov';
   overlay.addEventListener('click', () => { STATE.showBuy = false; STATE.buyWatch = null; render(); });
@@ -941,7 +1045,8 @@ function renderBuyModal(buyData) {
   closeBtn.addEventListener('click', () => { STATE.showBuy = false; STATE.buyWatch = null; render(); });
   modal.appendChild(closeBtn);
 
-  const p = window.calcPrice(watch, set, cond, era);
+  const p = calcPriceUnified(watch, set, cond, year);
+  const brand = watchBrand(watch);
   let step = 'form';
   let noteVal = '';
 
@@ -952,7 +1057,7 @@ function renderBuyModal(buyData) {
     if (step === 'form') {
       modal.innerHTML += `<div class="sm-title">Request Purchase</div>
         <div class="sm-sub">Our concierge will contact you within one business day</div>
-        <div class="sm-watch">${watch.brand} ${watch.name}${watch.nick ? ` "${watch.nick}"` : ''}<br><span style="font-size:11px;color:var(--silver2)">Ref. ${watch.ref} · ${set} · ${cond} · ${era}</span></div>`;
+        <div class="sm-watch">${brand} ${watch.name}${watch.nick ? ` "${watch.nick}"` : ''}<br><span style="font-size:11px;color:var(--silver2)">Ref. ${watch.ref} · ${set} · ${cond} · ${year}</span></div>`;
 
       const nf = makeFld('Your Name', 'text', '');
       nf.input.value = STATE.user.name;
@@ -985,11 +1090,13 @@ function renderBuyModal(buyData) {
       sendBtn.addEventListener('click', async () => {
         step = 'sending'; renderModalContent();
         try {
-          await fetch('/.netlify/functions/anthropic', {
+          await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              messages: [{ role: 'user', content: `Write a 2-sentence professional internal purchase notification for the store owner. Client: ${STATE.user.name} (${STATE.user.email}${STATE.user.phone ? ', ' + STATE.user.phone : ''}). Watch: ${watch.brand} ${watch.name}${watch.nick ? ' "' + watch.nick + '"' : ''} Ref.${watch.ref}. Config: ${era} era · ${cond} · ${set} · Market avg: ${window.fmtPrice(p.avg)}. Note: "${noteVal || 'none'}". Sign off: The Watch Gallery Concierge.` }]
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 200,
+              messages: [{ role: 'user', content: `Write a 2-sentence professional internal purchase notification for the store owner. Client: ${STATE.user.name} (${STATE.user.email}${STATE.user.phone ? ', ' + STATE.user.phone : ''}). Watch: ${brand} ${watch.name}${watch.nick ? ' "' + watch.nick + '"' : ''} Ref.${watch.ref}. Config: ${year} · ${cond} · ${set} · Market avg: ${window.fmtPrice(p.avg)}. Note: "${noteVal || 'none'}". Sign off: The Watch Gallery Concierge.` }]
             })
           });
         } catch (err) { console.log('API note sent.'); }
@@ -1076,10 +1183,12 @@ function renderRequestModal() {
         if (!watchDesc) return;
         step = 'sending'; renderContent();
         try {
-          await fetch('/.netlify/functions/anthropic', {
+          await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 200,
               messages: [{ role: 'user', content: `Write a 2-sentence internal sourcing notification. Client: ${STATE.user.name} (${STATE.user.email}). Requested: ${watchDesc}. Budget: ${budget || 'unspecified'}. Notes: ${notes || 'none'}. Sign off: The Watch Gallery Concierge.` }]
             })
           });
@@ -1137,7 +1246,7 @@ function renderWishlist() {
   STATE.wishlist.forEach(entry => {
     const watch = watchById(entry.wid);
     if (!watch) return;
-    const p = window.calcPrice(watch, entry.set, entry.cond, entry.era);
+    const p = calcPriceUnified(watch, entry.set, entry.cond, entry.year || defaultYear(watch));
 
     const item = document.createElement('div');
     item.className = 'wl-item';
@@ -1161,13 +1270,13 @@ function renderWishlist() {
     const info = document.createElement('div');
     info.className = 'wl-info';
     info.innerHTML = `
-      <div class="wl-name">${watch.name}</div>
+      <div class="wl-name"><span style="color:var(--gold);font-size:9px;letter-spacing:2px;text-transform:uppercase;">${watchBrand(watch)}</span><br>${watch.name}</div>
       ${watch.nick ? `<div class="wl-nick">"${watch.nick}"</div>` : ''}
       <div class="wl-det">Ref. ${watch.ref} · ${watch.size}</div>`;
 
     const tags = document.createElement('div');
     tags.className = 'wl-tags';
-    [entry.set, entry.cond, entry.era, watch.mat].forEach(t => {
+    [entry.set, entry.cond, entry.year || defaultYear(watch), watch.mat].forEach(t => {
       const tag = document.createElement('span');
       tag.className = 'wtag';
       tag.textContent = t;
@@ -1190,7 +1299,7 @@ function renderWishlist() {
     buyBtn.className = 'bsm-buy';
     buyBtn.textContent = 'Buy';
     buyBtn.addEventListener('click', () => {
-      STATE.buyWatch = { watch, set: entry.set, cond: entry.cond, era: entry.era };
+      STATE.buyWatch = { watch, set: entry.set, cond: entry.cond, year: entry.year || defaultYear(watch) };
       STATE.showBuy = true;
       render();
     });
